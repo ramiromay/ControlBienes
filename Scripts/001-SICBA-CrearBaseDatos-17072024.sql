@@ -340,7 +340,7 @@ CREATE TABLE Catalogo.Titulares
     iIdTitular            BIGINT IDENTITY (1,1) PRIMARY KEY NOT NULL,
     sNombre               NVARCHAR(150)                     NOT NULL,
     iIdCentroTrabajoTurno BIGINT                            NOT NULL,
-    iActivo               BIT                               NOT NULL,
+    bActivo               BIT                               NOT NULL,
     dtFechaCreacion       DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion   DATETIME                          NOT NULL DEFAULT GETDATE()
 );
@@ -355,7 +355,7 @@ CREATE TABLE Catalogo.Colores
     iIdColor            BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     sNombre             NVARCHAR(100)                     NOT NULL,
     sCodigoRGB          NVARCHAR(15)                      NOT NULL,
-    iActivo             BIT                               NOT NULL,
+    bActivo             BIT                               NOT NULL,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
 );
@@ -365,7 +365,7 @@ CREATE TABLE Catalogo.EstadosFisicos
     iIdEstadoFisico     BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     sNombre             NVARCHAR(50)                      NOT NULL,
     sDescripcion        NVARCHAR(MAX)                     NOT NULL,
-    iActivo             BIT                               NOT NULL,
+    bActivo             BIT                               NOT NULL,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
 );
