@@ -226,7 +226,6 @@ ALTER TABLE Seguridad.UsuariosPermisos
     ADD CONSTRAINT FK_UsuariosPermisos_iIdPermiso
         FOREIGN KEY (iIdPermiso)
             REFERENCES Seguridad.Permisos (iIdPermiso);
-
 GO
 
 -- TABLAS DE PATRIMONIO
@@ -423,7 +422,7 @@ CREATE TABLE Catalogo.ClavesVehiculares
 (
     iIdClaveVehicular   BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     sNombre             NVARCHAR(150)                     NOT NULL,
-    sDescripcion        NVARCHAR(MAX)                     NULL,
+    sDescripcion        NVARCHAR(MAX),
     bActivo             BIT                               NOT NULL,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
@@ -532,9 +531,11 @@ CREATE TABLE Catalogo.VersionesVehiculares
 -- INTERNO / EXTERNO
 CREATE TABLE General.TiposResponsables
 (
-    iIdTipoResponsable BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
-    sNombre            NVARCHAR(150)                     NOT NULL,
-    sDescripcion       NVARCHAR(MAX)
+    iIdTipoResponsable  BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
+    sNombre             NVARCHAR(150)                     NOT NULL,
+    sDescripcion        NVARCHAR(MAX),
+    dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
+    dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
 );
 
 CREATE TABLE Catalogo.Resguardantes
@@ -564,14 +565,15 @@ CREATE TABLE Catalogo.TiposBienes
 
 CREATE TABLE Catalogo.Familias
 (
-    iIdFamilia          BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
-    iFolioFamilia       INT                               NOT NULL,
-    sNombre             NVARCHAR(255)                     NOT NULL,
+    iIdFamilia          BIGINT PRIMARY KEY NOT NULL,
+    iFolioFamilia       INT                NOT NULL,
+    iNumeroCuenta       INT,
+    sNombre             NVARCHAR(255)      NOT NULL,
     sDescripcion        NVARCHAR(MAX),
-    iIdTipoBien         BIGINT                            NOT NULL,
-    bActivo             BIT                               NOT NULL,
-    dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
-    dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
+    iIdTipoBien         BIGINT,
+    bActivo             BIT                NOT NULL,
+    dtFechaCreacion     DATETIME           NOT NULL DEFAULT GETDATE(),
+    dtFechaModificacion DATETIME           NOT NULL DEFAULT GETDATE()
 );
 
 ALTER TABLE Catalogo.Familias
@@ -580,15 +582,16 @@ ALTER TABLE Catalogo.Familias
 
 CREATE TABLE Catalogo.Subfamilias
 (
-    iIdSubfamilia       BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
-    iIdFamilia          BIGINT                            NOT NULL,
-    iFolioSubfamilia    INT                               NOT NULL,
-    sNombre             NVARCHAR(255)                     NOT NULL,
+    iIdSubfamilia       BIGINT PRIMARY KEY NOT NULL,
+    iIdFamilia          BIGINT             NOT NULL,
+    iFolioSubfamilia    INT,
+    iNumeroCuenta       INT,
+    sNombre             NVARCHAR(255)      NOT NULL,
     sDescripcion        NVARCHAR(MAX),
-    dValorRecuperable   DOUBLE PRECISION                  NOT NULL,
-    bActivo             BIT                               NOT NULL,
-    dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
-    dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
+    dValorRecuperable   DOUBLE PRECISION   NOT NULL,
+    bActivo             BIT                NOT NULL,
+    dtFechaCreacion     DATETIME           NOT NULL DEFAULT GETDATE(),
+    dtFechaModificacion DATETIME           NOT NULL DEFAULT GETDATE()
 );
 
 ALTER TABLE Catalogo.Subfamilias
@@ -672,8 +675,8 @@ CREATE TABLE General.BMS
 (
     iIdBMS              BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     sNombre             NVARCHAR(255)                     NOT NULL,
-    iIdFantasia         BIGINT                            NOT NULL,
-    iISubfamilia        BIGINT                            NOT NULL,
+    iIdFamilia          BIGINT                            NOT NULL,
+    iIdSubfamilia       BIGINT                            NOT NULL,
     iCantidad           INT                               NOT NULL,
     sUnidadMedida       NVARCHAR(255)                     NOT NULL,
     dPrecioUnitario     DOUBLE PRECISION                  NOT NULL,
@@ -684,8 +687,12 @@ CREATE TABLE General.BMS
 );
 
 ALTER TABLE General.BMS
+    ADD CONSTRAINT FK_BMS_iIdFamilia
+        FOREIGN KEY (iIdFamilia) REFERENCES Catalogo.Familias (iIdFamilia);
+
+ALTER TABLE General.BMS
     ADD CONSTRAINT FK_BMS_iIdSubfamilia
-        FOREIGN KEY (iISubfamilia) REFERENCES Catalogo.Subfamilias (iIdSubfamilia);
+        FOREIGN KEY (iIdSubfamilia) REFERENCES Catalogo.Subfamilias (iIdSubfamilia);
 
 CREATE TABLE Patrimonio.Etapas
 (
@@ -895,6 +902,7 @@ CREATE TABLE Patrimonio.Afectaciones
 CREATE TABLE Patrimonio.Bienes
 (
     iIdBien                 BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
+    iIdPeriodo               BIGINT                            NOT NULL,
     iIdTipoBien             BIGINT                            NOT NULL,
     sFolioBien              NVARCHAR(MAX),
     iIdFamilia              BIGINT                            NOT NULL,
@@ -930,7 +938,12 @@ CREATE TABLE Patrimonio.Bienes
     dtFechaBaja             DATE,
     dtFechaAlta             DATE,
     sMotivoBaja             NVARCHAR(MAX),
+    bDeprecia               BIT                               NOT NULL DEFAULT 1,
 );
+
+ALTER TABLE Patrimonio.Bienes
+    ADD CONSTRAINT FK_Bienes_iIdPeriodo
+        FOREIGN KEY (iIdPeriodo) REFERENCES General.Periodos (iIdPeriodo);
 
 ALTER TABLE Patrimonio.Bienes
     ADD CONSTRAINT FK_Bienes_iIdTipoBien
@@ -978,6 +991,7 @@ CREATE TABLE Patrimonio.Solicitudes
     iIdSolicitud            BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     iIdEmpleado             BIGINT                            NOT NULL,
     iIdEtapa                BIGINT                            NOT NULL,
+    iIdPeriodo              BIGINT                            NOT NULL,
     iIdUnidadAdministrativa BIGINT                            NOT NULL,
     iIdTipoTramite          BIGINT                            NOT NULL,
     iIdMotivoTramite        BIGINT                            NOT NULL,
@@ -989,6 +1003,9 @@ CREATE TABLE Patrimonio.Solicitudes
     dtFechaModificacion     DATETIME                          NOT NULL DEFAULT GETDATE()
 );
 
+ALTER TABLE Patrimonio.Solicitudes
+    ADD CONSTRAINT FK_Solicitudes_iIdPeriodo
+        FOREIGN KEY (iIdPeriodo) REFERENCES General.Periodos (iIdPeriodo);
 
 ALTER TABLE Patrimonio.Solicitudes
     ADD CONSTRAINT FK_Solicitudes_iIdEmpleado
@@ -1242,7 +1259,6 @@ ALTER TABLE Patrimonio.DetallesMovimientos
     ADD CONSTRAINT FK_DetallesMovimientos_iIdNuevaUnidadAdministrativa
         FOREIGN KEY (iIdNuevaUnidadAdministrativa) REFERENCES General.UnidadesAdministrativas (iIdUnidadAdministrativa);
 
---- AGG ID BIEN
 CREATE TABLE Patrimonio.DetallesModificaciones
 (
     iIdDetalleModificacion  BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
@@ -1526,6 +1542,21 @@ ALTER TABLE Patrimonio.Historiales
     ADD CONSTRAINT FK_Historiales_iIdSolicitud
         FOREIGN KEY (iIdSolicitud) REFERENCES Patrimonio.Solicitudes (iIdSolicitud);
 
+CREATE TABLE Patrimonio.Depreciaciones
+(
+    iIdDepreciacion       BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
+    iIdBien               BIGINT                            NOT NULL,
+    dTasa                 DECIMAL(9, 6)                     NOT NULL,
+    dDepreciaionAcumulada DECIMAL(9, 6)                     NOT NULL,
+    dValorLibros          DOUBLE PRECISION                  NOT NULL,
+    dDepreciacionFiscal   DECIMAL(9, 6)                     NOT NULL,
+    dtFecha               DATE                              NOT NULL DEFAULT GETDATE(),
+);
+
+ALTER TABLE Patrimonio.Historiales
+    ADD CONSTRAINT FK_Depreciaciones_iIdBien
+        FOREIGN KEY (iIdBien) REFERENCES Patrimonio.Bienes (iIdBien);
+
 GO
 
 -- TABLAS DE ALMACEN
@@ -1538,7 +1569,7 @@ CREATE TABLE General.Cuentas
     sNivelCompleto      NVARCHAR(20)                      NOT NULL,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE(),
-)
+);
 
 CREATE TABLE Almacen.MetodosCosteo
 (
