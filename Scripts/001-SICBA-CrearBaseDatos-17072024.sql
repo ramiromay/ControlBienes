@@ -369,7 +369,7 @@ CREATE TABLE Catalogo.EstadosFisicos
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
 );
 
-CREATE TABLE Catalogo.EstadoGeneral
+CREATE TABLE Catalogo.EstadosGenerales
 (
     iIdEstadoGeneral    BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     sNombre             NVARCHAR(25)                      NOT NULL,
@@ -566,7 +566,6 @@ CREATE TABLE Catalogo.TiposBienes
 CREATE TABLE Catalogo.Familias
 (
     iIdFamilia          BIGINT PRIMARY KEY NOT NULL,
-    iFolioFamilia       INT                NOT NULL,
     iNumeroCuenta       INT,
     sNombre             NVARCHAR(255)      NOT NULL,
     sDescripcion        NVARCHAR(MAX),
@@ -584,7 +583,6 @@ CREATE TABLE Catalogo.Subfamilias
 (
     iIdSubfamilia       BIGINT PRIMARY KEY NOT NULL,
     iIdFamilia          BIGINT             NOT NULL,
-    iFolioSubfamilia    INT,
     iNumeroCuenta       INT,
     sNombre             NVARCHAR(255)      NOT NULL,
     sDescripcion        NVARCHAR(MAX),
@@ -881,7 +879,7 @@ ALTER TABLE Patrimonio.DatosInmuebles
 
 ALTER TABLE Patrimonio.DatosInmuebles
     ADD CONSTRAINT FK_iIdEstadoGeneral
-        FOREIGN KEY (iIdEstadoGeneral) REFERENCES Catalogo.EstadoGeneral (iIdEstadoGeneral);
+        FOREIGN KEY (iIdEstadoGeneral) REFERENCES Catalogo.EstadosGenerales (iIdEstadoGeneral);
 
 ALTER TABLE Patrimonio.DatosInmuebles
     ADD CONSTRAINT FK_iIdTipoAfectacion
