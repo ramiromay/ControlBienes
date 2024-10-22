@@ -87,6 +87,27 @@ CREATE TABLE Sistema.Catalogos
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
 );
 
+CREATE TABLE Sistema.ColumnasTablas
+(
+    iIdColumnaTablaCatalogo BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
+    sClave                  NVARCHAR(255)                     NOT NULL,
+    sNombre                 NVARCHAR(255)                     NOT NULL,
+    sTipoDato               NVARCHAR(100)                     NOT NULL,
+    iIdCatalogo             BIGINT                            NOT NULL,
+    iIdSubModulo            BIGINT                            NOT NULL,
+    bActivo                 BIT                               NOT NULL,
+    dtFechaCreacion         DATETIME                          NOT NULL DEFAULT GETDATE(),
+    dtFechaModificacion     DATETIME                          NOT NULL DEFAULT GETDATE()
+);
+
+ALTER TABLE Sistema.ColumnasTablas
+    ADD CONSTRAINT FK_ColumnasTablas_iIdCatalogo
+        FOREIGN KEY (iIdCatalogo) REFERENCES Sistema.Catalogos (iIdCatalogo);
+
+ALTER TABLE Sistema.ColumnasTablas
+    ADD CONSTRAINT FK_ColumnasTablas_iIdSubmodulo
+        FOREIGN KEY (iIdSubModulo) REFERENCES Sistema.SubModulos (iIdSubModulo);
+
 ALTER TABLE Sistema.Catalogos
     ADD CONSTRAINT FK_Catalogos_iIdModulo
         FOREIGN KEY (iIdModulo) REFERENCES Sistema.Modulos (iIdModulo);
@@ -353,7 +374,7 @@ CREATE TABLE Catalogo.Colores
 (
     iIdColor            BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     sNombre             NVARCHAR(100)                     NOT NULL,
-    sCodigoRGB          NVARCHAR(15)                      NOT NULL,
+    sCodigoRGB          NVARCHAR(25)                      NOT NULL,
     bActivo             BIT                               NOT NULL,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
@@ -602,7 +623,7 @@ CREATE TABLE Catalogo.CaracteristicasBienes
     iIdFamilia            BIGINT                            NOT NULL,
     iIdSubfamilia         BIGINT                            NOT NULL,
     sEtiqueta             NVARCHAR(255)                     NOT NULL,
-    sDescripcion          NVARCHAR(255),
+    sDescripcion          NVARCHAR(MAX),
     bActivo               BIT                               NOT NULL,
     dtFechaCreacion       DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion   DATETIME                          NOT NULL DEFAULT GETDATE()
@@ -900,7 +921,7 @@ CREATE TABLE Patrimonio.Afectaciones
 CREATE TABLE Patrimonio.Bienes
 (
     iIdBien                 BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
-    iIdPeriodo               BIGINT                            NOT NULL,
+    iIdPeriodo              BIGINT                            NOT NULL,
     iIdTipoBien             BIGINT                            NOT NULL,
     sFolioBien              NVARCHAR(MAX),
     iIdFamilia              BIGINT                            NOT NULL,
