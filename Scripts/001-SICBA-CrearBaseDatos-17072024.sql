@@ -93,8 +93,8 @@ CREATE TABLE Sistema.ColumnasTablas
     sClave                  NVARCHAR(255)                     NOT NULL,
     sNombre                 NVARCHAR(255)                     NOT NULL,
     sTipoDato               NVARCHAR(100)                     NOT NULL,
-    iIdCatalogo             BIGINT                            NOT NULL,
-    iIdSubModulo            BIGINT                            NOT NULL,
+    iIdCatalogo             BIGINT,
+    iIdSubModulo            BIGINT,
     bActivo                 BIT                               NOT NULL,
     dtFechaCreacion         DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion     DATETIME                          NOT NULL DEFAULT GETDATE()
