@@ -46,6 +46,7 @@ CREATE TABLE Sistema.Modulos
     sNombre             NVARCHAR(250)                     NOT NULL,
     sAbreviacion        NVARCHAR(10)                      NOT NULL,
     sDescripcion        NVARCHAR(MAX),
+    iIdPermiso          BIGINT                            NOT NULL,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
 );
@@ -65,6 +66,7 @@ CREATE TABLE Sistema.SubModulos
     sAbreviacion        NVARCHAR(10)                      NOT NULL,
     iIdModulo           BIGINT                            NOT NULL,
     iIdSeccion          BIGINT                            NOT NULL,
+    iIdPermiso          BIGINT                            NOT NULL,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
 );
@@ -82,6 +84,7 @@ CREATE TABLE Sistema.Catalogos
     iIdCatalogo         BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     sNombre             NVARCHAR(255)                     NOT NULL,
     iIdModulo           BIGINT,
+    iIdPermiso          BIGINT                            NOT NULL,
     bActivo             BIT,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
@@ -89,15 +92,16 @@ CREATE TABLE Sistema.Catalogos
 
 CREATE TABLE Sistema.ColumnasTablas
 (
-    iIdColumnaTablaCatalogo BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
-    sClave                  NVARCHAR(255)                     NOT NULL,
-    sNombre                 NVARCHAR(255)                     NOT NULL,
-    sTipoDato               NVARCHAR(100)                     NOT NULL,
-    iIdCatalogo             BIGINT,
-    iIdSubModulo            BIGINT,
-    bActivo                 BIT                               NOT NULL,
-    dtFechaCreacion         DATETIME                          NOT NULL DEFAULT GETDATE(),
-    dtFechaModificacion     DATETIME                          NOT NULL DEFAULT GETDATE()
+    iIdColumnaTabla     BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
+    sClave              NVARCHAR(255)                     NOT NULL,
+    sNombre             NVARCHAR(255)                     NOT NULL,
+    iTamanio            INT,
+    sTipoDato           NVARCHAR(100)                     NOT NULL,
+    iIdCatalogo         BIGINT,
+    iIdSubModulo        BIGINT,
+    bActivo             BIT                               NOT NULL,
+    dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
+    dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
 );
 
 ALTER TABLE Sistema.ColumnasTablas
@@ -158,25 +162,42 @@ CREATE TABLE Seguridad.Empleados
 
 CREATE TABLE Seguridad.Roles
 (
-    iIdRol              BIGINT IDENTITY (1,1) PRIMARY KEY NOT NULL,
-    sNombre             NVARCHAR(100)                     NOT NULL,
-    sDescripcion        NVARCHAR(MAX)                     NOT NULL,
-    dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
-    dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
+    iIdRol               BIGINT IDENTITY (1,1) PRIMARY KEY NOT NULL,
+    sNombre              NVARCHAR(100)                     NOT NULL,
+    sNombreNormalizado   NVARCHAR(100)                     NOT NULL,
+    sDescripcion         NVARCHAR(MAX)                     NOT NULL,
+    sSelloDeConcorrencia NVARCHAR(MAX),
+    dtFechaCreacion      DATETIME                          NOT NULL DEFAULT GETDATE(),
+    dtFechaModificacion  DATETIME                          NOT NULL DEFAULT GETDATE()
 );
 
 CREATE TABLE Seguridad.Usuarios
 (
-    iIdUsuario          BIGINT IDENTITY (1,1) PRIMARY KEY NOT NULL,
-    iIdEmpleado         BIGINT                            NOT NULL,
-    sUsuario            NVARCHAR(100)                     NOT NULL,
-    sContraseniaHash    NVARCHAR(MAX)                     NOT NULL,
-    sEmail              NVARCHAR(250)                     NOT NULL,
-    nNumero             NUMERIC(10),
-    bEmailVerificado    BIT                               NOT NULL,
-    iIdRol              BIGINT                            NOT NULL,
-    dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
-    dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
+    iIdUsuario              BIGINT IDENTITY (1,1) PRIMARY KEY NOT NULL,
+    sUsuario                NVARCHAR(100)                     NOT NULL,
+    sUsuarioNormalizado     NVARCHAR(100),
+    sContraseniaHash        NVARCHAR(MAX)                     NOT NULL,
+    sEmail                  NVARCHAR(250)                     NOT NULL,
+    sEmailNormalizado       NVARCHAR(250),
+    sNumero                 NVARCHAR(10),
+    bEmailVerificado        BIT                               NOT NULL,
+    sSelloDeSeguridad       NVARCHAR(MAX),
+    sSelloDeConcorrencia    NVARCHAR(MAX),
+    bTelefonoConfirmado     BIT                               NOT NULL,
+    bHabilitarDosFactores   BIT                               NOT NULL,
+    dtFinDeBloqueo          DATETIMEOFFSET,
+    bBloqueoHabilitado      BIT                               NOT NULL,
+    iContadorFallosDeAcceso INT                               NOT NULL,
+    dtFechaCreacion         DATETIME                          NOT NULL DEFAULT GETDATE(),
+    dtFechaModificacion     DATETIME                          NOT NULL DEFAULT GETDATE()
+);
+
+CREATE TABLE Seguridad.UsuariosRoles
+(
+    iIdUsuario BIGINT NOT NULL,
+    iIdRol     BIGINT NOT NULL,
+    CONSTRAINT FK_UsuariosRoles_iIdUsuario FOREIGN KEY (iIdUsuario) REFERENCES Seguridad.Usuarios (iIdUsuario),
+    CONSTRAINT FK_UsuariosRoles_iIdRolUsuario FOREIGN KEY (iIdRol) REFERENCES Seguridad.Roles (iIdRol)
 );
 
 ALTER TABLE Seguridad.Empleados
@@ -192,21 +213,11 @@ ALTER TABLE Seguridad.Empleados
         FOREIGN KEY (iIdUsuario)
             REFERENCES Seguridad.Usuarios (iIdUsuario);
 
-ALTER TABLE Seguridad.Usuarios
-    ADD CONSTRAINT FK_Usuario_iIdEmpleado
-        FOREIGN KEY (iIdEmpleado)
-            REFERENCES Seguridad.Empleados (iIdEmpleado);
-
-ALTER TABLE Seguridad.Usuarios
-    ADD CONSTRAINT FK_Usuario_iIdRol
-        FOREIGN KEY (iIdRol) REFERENCES Seguridad.Roles (iIdRol);
-
 CREATE TABLE Seguridad.Permisos
 (
     iIdPermiso   BIGINT IDENTITY (1,1) PRIMARY KEY NOT NULL,
-    sNombre      NVARCHAR(50)                      NOT NULL,
+    sNombre      NVARCHAR(255)                     NOT NULL,
     sDescripcion NVARCHAR(MAX)                     NOT NULL,
-    iIdModulo    BIGINT                            NOT NULL,
 );
 
 CREATE TABLE Seguridad.RolesPermisos
@@ -215,11 +226,6 @@ CREATE TABLE Seguridad.RolesPermisos
     iIdRol        BIGINT                            NOT NULL,
     iIdPermiso    BIGINT                            NOT NULL
 );
-
-ALTER TABLE Seguridad.Permisos
-    ADD CONSTRAINT FK_Permisos_iIdModulo
-        FOREIGN KEY (iIdModulo)
-            REFERENCES Sistema.Modulos (iIdModulo);
 
 ALTER TABLE Seguridad.RolesPermisos
     ADD CONSTRAINT FK_RolesPermisos_iIdRol
@@ -230,6 +236,18 @@ ALTER TABLE Seguridad.RolesPermisos
     ADD CONSTRAINT FK_RolesPermisos_iIdPermiso
         FOREIGN KEY (iIdPermiso)
             REFERENCES Seguridad.Permisos (iIdPermiso);
+
+ALTER TABLE Sistema.Catalogos
+    add constraint FK_Catalogos_iIdPermiso
+        foreign key (iIdPermiso) references Seguridad.Permisos (iIdPermiso);
+
+ALTER TABLE Sistema.Modulos
+    add constraint FK_Modulos_iIdPermiso
+        foreign key (iIdPermiso) references Seguridad.Permisos (iIdPermiso);
+
+ALTER TABLE Sistema.SubModulos
+    add constraint FK_SubModulos_iIdPermiso
+        foreign key (iIdPermiso) references Seguridad.Permisos (iIdPermiso);
 
 CREATE TABLE Seguridad.UsuariosPermisos
 (
@@ -252,13 +270,12 @@ GO
 -- TABLAS DE PATRIMONIO
 CREATE TABLE General.Periodos
 (
-    iIdPeriodo          BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
-    iAnio               INT                               NOT NULL,
-    dtFechaInicio       DATE                              NOT NULL,
-    dtFechaFinal        DATE                              NOT NULL,
-    bActivo             BIT                               NOT NULL,
-    dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
-    dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
+    iIdPeriodo          BIGINT PRIMARY KEY NOT NULL,
+    dtFechaInicio       DATE               NOT NULL,
+    dtFechaFinal        DATE               NOT NULL,
+    bActivo             BIT                NOT NULL,
+    dtFechaCreacion     DATETIME           NOT NULL DEFAULT GETDATE(),
+    dtFechaModificacion DATETIME           NOT NULL DEFAULT GETDATE()
 );
 
 -- SECRETARIAS / DIRRECCION / DEPARTAMENTOS
@@ -464,7 +481,7 @@ CREATE TABLE Patrimonio.TiposTramites
     iIdTipoTramite      BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     sNombre             NVARCHAR(100)                     NOT NULL,
     sDescripcion        NVARCHAR(MAX)                     NOT NULL,
-    iIdModulo           BIGINT                            NOT NULL,
+    iIdSubModulo        BIGINT                            NOT NULL,
     bActivo             BIT                               NOT NULL,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
@@ -486,7 +503,7 @@ CREATE TABLE Catalogo.Documentos
     iIdDocumentos       BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     sAbreviacion        NVARCHAR(10)                      NOT NULL,
     sNombre             NVARCHAR(255)                     NOT NULL,
-    iIdModulo           BIGINT                            NOT NULL,
+    iIdSubModulo        BIGINT                            NOT NULL,
     iIdTipoTramite      BIGINT                            NOT NULL,
     iIdMotivoTramite    BIGINT                            NOT NULL,
     bActivo             BIT                               NOT NULL,
@@ -496,8 +513,8 @@ CREATE TABLE Catalogo.Documentos
 
 ALTER TABLE Patrimonio.TiposTramites
     ADD CONSTRAINT FK_TiposTramites_iIdModulo
-        FOREIGN KEY (iIdModulo)
-            REFERENCES Sistema.Modulos (iIdModulo);
+        FOREIGN KEY (iIdSubModulo)
+            REFERENCES Sistema.SubModulos (iIdSubModulo);
 
 ALTER TABLE Patrimonio.MotivosTramites
     ADD CONSTRAINT FK_MotivosTramites_iIdTipoTramite
@@ -506,8 +523,8 @@ ALTER TABLE Patrimonio.MotivosTramites
 
 ALTER TABLE Catalogo.Documentos
     ADD CONSTRAINT FK_Documentos_iIdModulo
-        FOREIGN KEY (iIdModulo)
-            REFERENCES Sistema.Modulos (iIdModulo);
+        FOREIGN KEY (iIdSubModulo)
+            REFERENCES Sistema.SubModulos (iIdSubModulo);
 
 ALTER TABLE Catalogo.Documentos
     ADD CONSTRAINT FK_Documentos_iIdTipoTramite
@@ -696,8 +713,8 @@ CREATE TABLE General.BMS
     sNombre             NVARCHAR(255)                     NOT NULL,
     iIdFamilia          BIGINT                            NOT NULL,
     iIdSubfamilia       BIGINT                            NOT NULL,
-    iCantidad           INT                               NOT NULL,
-    sUnidadMedida       NVARCHAR(255)                     NOT NULL,
+    iCantidad           INT,
+    sUnidadMedida       NVARCHAR(255),
     dPrecioUnitario     DOUBLE PRECISION                  NOT NULL,
     nCodigoArmonizado   NUMERIC(10),
     bActivo             BIT                               NOT NULL,
@@ -726,7 +743,8 @@ CREATE TABLE Patrimonio.EtapasTramites
 (
     iIdEtapaTramite     BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     iIdTipoTramite      BIGINT                            NOT NULL,
-    iIdEtapa            BIGINT                            NOT NULL,
+    iIdEtapaOrigen      BIGINT                            NOT NULL,
+    iIdEtapaDestino     BIGINT                            NOT NULL,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
 );
@@ -736,8 +754,12 @@ ALTER TABLE Patrimonio.EtapasTramites
         FOREIGN KEY (iIdTipoTramite) REFERENCES Patrimonio.TiposTramites (iIdTipoTramite);
 
 ALTER TABLE Patrimonio.EtapasTramites
-    ADD CONSTRAINT FK_EtapasTramites_iIdEtapa
-        FOREIGN KEY (iIdEtapa) REFERENCES Patrimonio.Etapas (iIdEtapa);
+    ADD CONSTRAINT FK_EtapasTramites_iIdEtapaOrigen
+        FOREIGN KEY (iIdEtapaOrigen) REFERENCES Patrimonio.Etapas (iIdEtapa);
+
+ALTER TABLE Patrimonio.EtapasTramites
+    ADD CONSTRAINT FK_EtapasTramites_iIdEtapaDestino
+        FOREIGN KEY (iIdEtapaDestino) REFERENCES Patrimonio.Etapas (iIdEtapa);
 
 CREATE TABLE Patrimonio.Licitaciones
 (
