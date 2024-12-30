@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlBienes.Data", "ControlBienes.Data\ControlBienes.Data.csproj", "{50938C50-7E51-4E28-915A-E61BF3FEE321}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlBienes.Data", "ControlBienes.Data\ControlBienes.Data.csproj", "{50938C50-7E51-4E28-915A-E61BF3FEE321}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlBienes.Entities", "ControlBienes.Entities\ControlBienes.Entities.csproj", "{B79291CD-8D9F-4F61-9046-99CF2996DB9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlBienes.Entities", "ControlBienes.Entities\ControlBienes.Entities.csproj", "{B79291CD-8D9F-4F61-9046-99CF2996DB9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlBienes.Services", "ControlBienes.Services\ControlBienes.Services.csproj", "{8C03BAA0-A9EF-4B67-BA33-A2E13CB81B6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlBienes.Services", "ControlBienes.Services\ControlBienes.Services.csproj", "{8C03BAA0-A9EF-4B67-BA33-A2E13CB81B6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlBienes.Business", "ControlBienes.Business\ControlBienes.Business.csproj", "{162D8F70-812A-4462-ABA6-2B0299817467}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlBienes.Business", "ControlBienes.Business\ControlBienes.Business.csproj", "{162D8F70-812A-4462-ABA6-2B0299817467}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlBienes.Web", "ControlBienes.Web\ControlBienes.Web.csproj", "{D3DD21F8-1264-4B8E-BC29-5E96DD2E5969}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlBienes.Web", "ControlBienes.Web\ControlBienes.Web.csproj", "{D3DD21F8-1264-4B8E-BC29-5E96DD2E5969}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlBienes.Utils", "ControlBienes.Utils\ControlBienes.Utils.csproj", "{8CD83AF4-4AA5-426F-80EB-BCFE9845DDC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{D3DD21F8-1264-4B8E-BC29-5E96DD2E5969}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3DD21F8-1264-4B8E-BC29-5E96DD2E5969}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3DD21F8-1264-4B8E-BC29-5E96DD2E5969}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CD83AF4-4AA5-426F-80EB-BCFE9845DDC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CD83AF4-4AA5-426F-80EB-BCFE9845DDC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CD83AF4-4AA5-426F-80EB-BCFE9845DDC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CD83AF4-4AA5-426F-80EB-BCFE9845DDC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
