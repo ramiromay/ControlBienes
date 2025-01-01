@@ -188,7 +188,7 @@ namespace ControlBienes.Business.Features.Catalogos.CaracteristicaBien
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntCaracteristicaBienResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntCaracteristicaBienResponse>>> BObtenerTodosAsync(bool? activos)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntCaracteristicaBienResponse>>();
@@ -201,12 +201,13 @@ namespace ControlBienes.Business.Features.Catalogos.CaracteristicaBien
                     cb => cb.Familia!,
                     cb => cb.Subfamilia!
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(includes);
-                resultado.Result = _mapper.Map<IEnumerable<EntCaracteristicaBienResponse>>(entidades);
-                resultado.StatusCode = HttpStatusCode.OK;
-                resultado.Message = EntMensajeConstant.OK;
-                resultado.Code = _code;
-            }
+                var entidades = await _repositorio.DObtenerTodosAsync(
+                    incluir: includes, 
+                    predicado: cb => cb.bActivo == activos.Value);
+
+                var responseDto = _mapper.Map<IEnumerable<EntCaracteristicaBienResponse>>(entidades);
+                resultado.Success(responseDto, _code);
+			}
             catch (Exception ex)
             {
                 resultado = BusExceptionHandler.Handle<IEnumerable<EntCaracteristicaBienResponse>>(
