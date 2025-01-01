@@ -7,6 +7,7 @@ using ControlBienes.Business.Genericos;
 using ControlBienes.Data.Contrats.Catalogos;
 using ControlBienes.Data.Contrats.General;
 using ControlBienes.Data.Contrats.Seguridad;
+using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.CentroTrabajo;
 using ControlBienes.Entities.Catalogos.CentroTrabajoTurno;
 using ControlBienes.Entities.Catalogos.Resguardante;
@@ -210,7 +211,7 @@ namespace ControlBienes.Business.Features.Catalogos.Resguardante
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntResguardanteResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntResguardanteResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntResguardanteResponse>>();
@@ -218,14 +219,17 @@ namespace ControlBienes.Business.Features.Catalogos.Resguardante
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los resguardantes");
             try
             {
-                var includes = new List<Expression<Func<EntResguardante, object>>>()
+				Expression<Func<EntResguardante, bool>>? predicado = activo.HasValue
+                    ? r => r.bActivo == activo.Value
+                    : null;
+				var includes = new List<Expression<Func<EntResguardante, object>>>()
                 {
                     f => f.Periodo!,
                     f => f.Persona!,
                     f => f.TipoResponsable!,
                     f => f.UnidadAdministrativa!
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(includes);
+                var entidades = await _repositorio.DObtenerTodosAsync(incluir: includes, predicado: predicado);
                 resultado.Result = _mapper.Map<IEnumerable<EntResguardanteResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
