@@ -3,11 +3,13 @@ using ControlBienes.Business.Contrats.Catalogs;
 using ControlBienes.Business.Exceptions;
 using ControlBienes.Business.Genericos;
 using ControlBienes.Data.Contrats.Catalogos;
+using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.ClaseVehicular;
 using ControlBienes.Entities.Constants;
 using ControlBienes.Utils;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 using System.Net;
 
 namespace ControlBienes.Business.Features.Catalogos.ClaseVehicular
@@ -165,7 +167,11 @@ namespace ControlBienes.Business.Features.Catalogos.ClaseVehicular
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos las clases vehiculares");
             try
             {
-				var entidades = await _repositorio.DObtenerTodosAsync(predicado: e => e.bActivo == activo.Value);
+				Expression<Func<EntClaseVehicular, bool>>? predicado = activo.HasValue
+                    ? r => r.bActivo == activo.Value
+                    : null;
+
+				var entidades = await _repositorio.DObtenerTodosAsync(predicado: predicado);
 				resultado.Result = _mapper.Map<IEnumerable<EntClaseVehicularResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
