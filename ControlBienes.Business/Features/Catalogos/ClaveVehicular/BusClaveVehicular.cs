@@ -157,7 +157,7 @@ namespace ControlBienes.Business.Features.Catalogos.ClaveVehicular
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntClaveVehicularResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntClaveVehicularResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntClaveVehicularResponse>>();
@@ -165,7 +165,7 @@ namespace ControlBienes.Business.Features.Catalogos.ClaveVehicular
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos las claves vehiculares");
             try
             {
-                var entidades = await _repositorio.DObtenerTodosAsync();
+                var entidades = await _repositorio.DObtenerTodosAsync(predicado: e => e.bActivo == activo.Value);
                 resultado.Result = _mapper.Map<IEnumerable<EntClaveVehicularResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
