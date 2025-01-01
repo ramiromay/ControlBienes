@@ -3,11 +3,13 @@ using ControlBienes.Business.Contrats.Catalogs;
 using ControlBienes.Business.Exceptions;
 using ControlBienes.Business.Genericos;
 using ControlBienes.Data.Contrats.Catalogos;
+using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.Marca;
 using ControlBienes.Entities.Constants;
 using ControlBienes.Utils;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 using System.Net;
 
 namespace ControlBienes.Business.Features.Catalogos.Marca
@@ -157,7 +159,7 @@ namespace ControlBienes.Business.Features.Catalogos.Marca
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntMarcaResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntMarcaResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntMarcaResponse>>();
@@ -165,7 +167,10 @@ namespace ControlBienes.Business.Features.Catalogos.Marca
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todas la marcas");
             try
             {
-                var entidades = await _repositorio.DObtenerTodosAsync();
+				Expression<Func<EntCaracteristicaBien, bool>>? predicado = activo.HasValue
+                    ? r => r.bActivo == activo.Value
+                    : null;
+				var entidades = await _repositorio.DObtenerTodosAsync(predicado: predicado);
                 resultado.Result = _mapper.Map<IEnumerable<EntMarcaResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
