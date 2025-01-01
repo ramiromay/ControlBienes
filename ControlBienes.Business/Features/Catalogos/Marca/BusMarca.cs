@@ -167,7 +167,7 @@ namespace ControlBienes.Business.Features.Catalogos.Marca
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todas la marcas");
             try
             {
-				Expression<Func<EntCaracteristicaBien, bool>>? predicado = activo.HasValue
+				Expression<Func<EntMarca, bool>>? predicado = activo.HasValue
                     ? r => r.bActivo == activo.Value
                     : null;
 				var entidades = await _repositorio.DObtenerTodosAsync(predicado: predicado);
