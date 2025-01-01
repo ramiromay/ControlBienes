@@ -5,6 +5,7 @@ using ControlBienes.Business.Features.Catalogos.Color;
 using ControlBienes.Business.Genericos;
 using ControlBienes.Data.Contrats.Catalogos;
 using ControlBienes.Data.Contrats.General;
+using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.CentroTrabajo;
 using ControlBienes.Entities.Catalogos.Color;
 using ControlBienes.Entities.Catalogos.Familia;
@@ -208,14 +209,16 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajo
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los turnos del centros de trabajo");
             try
             {
-                var includes = new List<Expression<Func<EntCentroTrabajo, object>>>()
+				Expression<Func<EntCentroTrabajo, bool>>? predicado = activo.HasValue
+					? r => r.bActivo == activo.Value
+					: null;
+
+				var includes = new List<Expression<Func<EntCentroTrabajo, object>>>()
                 {
                     f => f.Municipio!,
                     f => f.UnidadAdministrativa!
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(
-                    incluir: includes,
-                    predicado: e => e.bActivo == activo.Value);
+                var entidades = await _repositorio.DObtenerTodosAsync(incluir: includes, predicado: predicado);
                 resultado.Result = _mapper.Map<IEnumerable<EntCentroTrabajoResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
