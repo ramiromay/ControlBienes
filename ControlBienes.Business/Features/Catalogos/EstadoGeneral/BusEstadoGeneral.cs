@@ -156,7 +156,7 @@ namespace ControlBienes.Business.Features.Catalogos.EstadoGeneral
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntEstadoGeneralResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntEstadoGeneralResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntEstadoGeneralResponse>>();
@@ -164,7 +164,7 @@ namespace ControlBienes.Business.Features.Catalogos.EstadoGeneral
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los estados generales");
             try
             {
-                var entidades = await _repositorio.DObtenerTodosAsync();
+                var entidades = await _repositorio.DObtenerTodosAsync(predicado: e => e.bActivo == activo.Value);
                 resultado.Result = _mapper.Map<IEnumerable<EntEstadoGeneralResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
