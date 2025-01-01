@@ -22,9 +22,9 @@ namespace ControlBienes.Web.Controllers.Seguridad
 		[ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(EntityResponse<EntEmpleadoResponse>))]
 		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(EntityResponse<EntEmpleadoResponse>))]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(EntityResponse<EntEmpleadoResponse>))]
-		public async Task<ActionResult<EntityResponse<IEnumerable<EntEmpleadoResponse>>>> CObtenerTodosEmpleados()
+		public async Task<ActionResult<EntityResponse<IEnumerable<EntEmpleadoResponse>>>> CObtenerTodosEmpleados([FromQuery] bool? activo)
 		{
-			var response = await _servicio.BObtenerTodosAsync();
+			var response = await _servicio.BObtenerTodosAsync(activo);
 			return StatusCode((int)response.StatusCode, response);
 		}
 

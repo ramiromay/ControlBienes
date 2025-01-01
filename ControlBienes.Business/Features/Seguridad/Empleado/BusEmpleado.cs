@@ -7,6 +7,7 @@ using ControlBienes.Data.Contrats.Catalogos;
 using ControlBienes.Data.Contrats.General;
 using ControlBienes.Data.Contrats.Seguridad;
 using ControlBienes.Data.Repository.Catalogos;
+using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.Color;
 using ControlBienes.Entities.Constants;
 using ControlBienes.Entities.Seguridad.Empleado;
@@ -364,7 +365,7 @@ namespace ControlBienes.Business.Features.Seguridad.Empleado
 			return resultado;
 		}
 
-		public async Task<EntityResponse<IEnumerable<EntEmpleadoResponse>>> BObtenerTodosAsync()
+		public async Task<EntityResponse<IEnumerable<EntEmpleadoResponse>>> BObtenerTodosAsync(bool? activo)
 		{
 			var nombreMetodo = nameof(BObtenerTodosAsync);
 			var resultado = new EntityResponse<IEnumerable<EntEmpleadoResponse>>();
@@ -372,7 +373,10 @@ namespace ControlBienes.Business.Features.Seguridad.Empleado
 			_logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los empleados");
 			try
 			{
-				var repornseDto = await _repositorio.DObtenerProyeccionListaAsync<EntEmpleadoResponse>();
+				Expression<Func<EntEmpleado, bool>>? predicado = activo.HasValue
+					? r => r.bActivo == activo.Value
+					: null;
+				var repornseDto = await _repositorio.DObtenerProyeccionListaAsync<EntEmpleadoResponse>(predicado: predicado);
 				resultado.Success(repornseDto, _code);
 			}
 			catch (Exception ex)
