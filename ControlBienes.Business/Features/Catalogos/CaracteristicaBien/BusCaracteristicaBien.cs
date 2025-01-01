@@ -4,11 +4,13 @@ using ControlBienes.Business.Exceptions;
 using ControlBienes.Business.Genericos;
 using ControlBienes.Data.Contrats.Catalogos;
 using ControlBienes.Entities.Catalogos.CaracteristicaBien;
+using ControlBienes.Entities.Catalogos.EstadoGeneral;
 using ControlBienes.Entities.Catalogos.Familia;
 using ControlBienes.Entities.Constants;
 using ControlBienes.Utils;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Linq.Expressions;
 using System.Net;
 
@@ -194,16 +196,18 @@ namespace ControlBienes.Business.Features.Catalogos.CaracteristicaBien
             var resultado = new EntityResponse<IEnumerable<EntCaracteristicaBienResponse>>();
 
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todas las caracteristicas");
-            try
+			try
             {
-                var includes = new List<Expression<Func<EntCaracteristicaBien, object>>>()
+				Expression<Func<EntCaracteristicaBien, bool>>? predicado = activo.HasValue
+					? r => r.bActivo == activo.Value
+					: null;
+
+				var includes = new List<Expression<Func<EntCaracteristicaBien, object>>>()
                 {
                     cb => cb.Familia!,
                     cb => cb.Subfamilia!
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(
-                    incluir: includes, 
-                    predicado: cb => cb.bActivo == activos.Value);
+                var entidades = await _repositorio.DObtenerTodosAsync(incluir: includes,  predicado: predicado);
 
                 var responseDto = _mapper.Map<IEnumerable<EntCaracteristicaBienResponse>>(entidades);
                 resultado.Success(responseDto, _code);
