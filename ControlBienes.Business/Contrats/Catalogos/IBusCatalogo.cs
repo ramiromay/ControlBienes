@@ -9,7 +9,7 @@ namespace ControlBienes.Business.Contrats.Catalogs
         Task<EntityResponse<int>> BCrearAsync(TRequest request);
         Task<EntityResponse<int>> BActualizarAsync(long id, TRequest request);
         Task<EntityResponse<int>> BCambiarEstatusAsync(long id);
-        Task<EntityResponse<IEnumerable<TResponse>>> BObtenerTodosAsync(bool activos);
+        Task<EntityResponse<IEnumerable<TResponse>>> BObtenerTodosAsync(bool? activos);
         Task<EntityResponse<TResponse>> BObtenerRegistroAsync(long id);
 
     }
