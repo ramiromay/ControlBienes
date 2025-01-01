@@ -157,7 +157,7 @@ namespace ControlBienes.Business.Features.Catalogos.Color
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntColorResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntColorResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntColorResponse>>();
@@ -165,7 +165,7 @@ namespace ControlBienes.Business.Features.Catalogos.Color
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los colores");
             try
             {
-                var entidades = await _repositorio.DObtenerTodosAsync();
+                var entidades = await _repositorio.DObtenerTodosAsync(predicado: e => e.bActivo ==activo.Value);
                 resultado.Result = _mapper.Map<IEnumerable<EntColorResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;

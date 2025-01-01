@@ -21,9 +21,9 @@ namespace ControlBienes.Web.Controllers.Catalogos
 		[ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(EntityResponse<EntColorResponse>))]
 		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(EntityResponse<EntColorResponse>))]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(EntityResponse<EntColorResponse>))]
-		public async Task<ActionResult<EntityResponse<IEnumerable<EntColorResponse>>>> CObtenerTodosColores()
+		public async Task<ActionResult<EntityResponse<IEnumerable<EntColorResponse>>>> CObtenerTodosColores([FromQuery] bool? activo)
 		{
-			var response = await _servicio.BObtenerTodosAsync();
+			var response = await _servicio.BObtenerTodosAsync(activo);
 			return StatusCode((int)response.StatusCode, response);
 		}
 
