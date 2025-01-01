@@ -3,6 +3,7 @@ using ControlBienes.Business.Contrats.Catalogs;
 using ControlBienes.Business.Exceptions;
 using ControlBienes.Business.Genericos;
 using ControlBienes.Data.Contrats.Catalogos;
+using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.Subfamilia;
 using ControlBienes.Entities.Constants;
 using ControlBienes.Utils;
@@ -180,7 +181,7 @@ namespace ControlBienes.Business.Features.Catalogos.Subfamilia
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntSubfamiliaResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntSubfamiliaResponse>>> BObtenerTodosAsync(bool? activo)
         {
             string nombreMetodo = nameof(this.BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntSubfamiliaResponse>>();
@@ -188,11 +189,14 @@ namespace ControlBienes.Business.Features.Catalogos.Subfamilia
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todas las subfamilias");
             try
             {
-                var includes = new List<Expression<Func<EntSubfamilia, object>>>()
+				Expression<Func<EntSubfamilia, bool>>? predicado = activo.HasValue
+                    ? r => r.bActivo == activo.Value
+                    : null;
+				var includes = new List<Expression<Func<EntSubfamilia, object>>>()
                 {
                     f => f.Familia!
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(includes);
+                var entidades = await _repositorio.DObtenerTodosAsync(incluir: includes, predicado: predicado);
                 resultado.Result = _mapper.Map<IEnumerable<EntSubfamiliaResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
