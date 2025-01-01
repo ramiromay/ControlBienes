@@ -1,9 +1,11 @@
-﻿using System.Net;
+﻿using System.Linq.Expressions;
+using System.Net;
 using AutoMapper;
 using ControlBienes.Business.Contrats.Catalogs;
 using ControlBienes.Business.Exceptions;
 using ControlBienes.Business.Genericos;
 using ControlBienes.Data.Contrats.Catalogos;
+using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.Color;
 using ControlBienes.Entities.Constants;
 using ControlBienes.Utils;
@@ -165,7 +167,10 @@ namespace ControlBienes.Business.Features.Catalogos.Color
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los colores");
             try
             {
-                var entidades = await _repositorio.DObtenerTodosAsync(predicado: e => e.bActivo ==activo.Value);
+				Expression<Func<EntColor, bool>>? predicado = activo.HasValue
+                    ? r => r.bActivo == activo.Value
+                    : null;
+				var entidades = await _repositorio.DObtenerTodosAsync(predicado: predicado);
                 resultado.Result = _mapper.Map<IEnumerable<EntColorResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
