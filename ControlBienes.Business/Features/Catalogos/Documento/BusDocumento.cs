@@ -182,15 +182,16 @@ namespace ControlBienes.Business.Features.Catalogos.Documento
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los documentos");
             try
             {
-                var includes = new List<Expression<Func<EntDocumento, object>>>()
+				Expression<Func<EntDocumento, bool>>? predicado = activo.HasValue
+                    ? r => r.bActivo == activo.Value
+                    : null;
+				var includes = new List<Expression<Func<EntDocumento, object>>>()
                 {
                     e => e.MotivoTramite!,
                     e => e.TipoTramite!,
                     e => e.SubModulo!
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(
-                    incluir: includes,
-                    predicado: e => e.bActivo == activo.Value);
+                var entidades = await _repositorio.DObtenerTodosAsync(incluir: includes, predicado: predicado);
                 resultado.Result = _mapper.Map<IEnumerable<EntDocumentoResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
