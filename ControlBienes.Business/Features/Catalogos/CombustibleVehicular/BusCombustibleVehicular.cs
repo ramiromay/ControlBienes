@@ -157,7 +157,7 @@ namespace ControlBienes.Business.Features.Catalogos.CombustibleVehicular
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntCombustibleVehicularResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntCombustibleVehicularResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntCombustibleVehicularResponse>>();
@@ -165,7 +165,7 @@ namespace ControlBienes.Business.Features.Catalogos.CombustibleVehicular
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los combustible vehiculares");
             try
             {
-                var entidades = await _repositorio.DObtenerTodosAsync();
+                var entidades = await _repositorio.DObtenerTodosAsync(predicado: e => e.bActivo == activo.Value);
                 resultado.Result = _mapper.Map<IEnumerable<EntCombustibleVehicularResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
