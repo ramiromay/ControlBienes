@@ -157,7 +157,7 @@ namespace ControlBienes.Business.Features.Catalogos.ClaseVehicular
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntClaseVehicularResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntClaseVehicularResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntClaseVehicularResponse>>();
@@ -165,8 +165,8 @@ namespace ControlBienes.Business.Features.Catalogos.ClaseVehicular
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos las clases vehiculares");
             try
             {
-                var entidades = await _repositorio.DObtenerTodosAsync();
-                resultado.Result = _mapper.Map<IEnumerable<EntClaseVehicularResponse>>(entidades);
+				var entidades = await _repositorio.DObtenerTodosAsync(predicado: e => e.bActivo == activo.Value);
+				resultado.Result = _mapper.Map<IEnumerable<EntClaseVehicularResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
                 resultado.Code = _code;
