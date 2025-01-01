@@ -156,7 +156,7 @@ namespace ControlBienes.Business.Features.Catalogos.EstadoFisico
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntEstadoFisicoResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntEstadoFisicoResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntEstadoFisicoResponse>>();
@@ -164,7 +164,7 @@ namespace ControlBienes.Business.Features.Catalogos.EstadoFisico
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los estados fisicos");
             try
             {
-                var entidades = await _repositorio.DObtenerTodosAsync();
+                var entidades = await _repositorio.DObtenerTodosAsync(predicado: e => e.bActivo == activo.Value);
                 resultado.Result = _mapper.Map<IEnumerable<EntEstadoFisicoResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
