@@ -188,7 +188,7 @@ namespace ControlBienes.Business.Features.Catalogos.Familia
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntFamiliaResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntFamiliaResponse>>> BObtenerTodosAsync(bool? activo)
         {
             string nombreMetodo = nameof(this.BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntFamiliaResponse>>();
@@ -203,7 +203,7 @@ namespace ControlBienes.Business.Features.Catalogos.Familia
                 {
                     f => f.TipoBien!
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(inclur: includes, predicado: predicado);
+                var entidades = await _repositorio.DObtenerTodosAsync(incluir: includes, predicado: predicado);
                 resultado.Result = _mapper.Map<IEnumerable<EntFamiliaResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
