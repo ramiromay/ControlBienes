@@ -174,7 +174,7 @@ namespace ControlBienes.Business.Features.Catalogos.Documento
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntDocumentoResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntDocumentoResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntDocumentoResponse>>();
@@ -188,7 +188,9 @@ namespace ControlBienes.Business.Features.Catalogos.Documento
                     e => e.TipoTramite!,
                     e => e.SubModulo!
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(includes);
+                var entidades = await _repositorio.DObtenerTodosAsync(
+                    incluir: includes,
+                    predicado: e => e.bActivo == activo.Value);
                 resultado.Result = _mapper.Map<IEnumerable<EntDocumentoResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
