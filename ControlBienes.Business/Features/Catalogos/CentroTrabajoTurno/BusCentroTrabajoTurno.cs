@@ -191,7 +191,7 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajoTurno
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntCentroTrabajoTurnoResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntCentroTrabajoTurnoResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntCentroTrabajoTurnoResponse>>();
@@ -204,8 +204,10 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajoTurno
                     f => f.CentroTrabajo,
                     f => f.Turno
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(includes);
-                resultado.Result = _mapper.Map<IEnumerable<EntCentroTrabajoTurnoResponse>>(entidades);
+				var entidades = await _repositorio.DObtenerTodosAsync(
+					incluir: includes,
+					predicado: e => e.bActivo == activo.Value);
+				resultado.Result = _mapper.Map<IEnumerable<EntCentroTrabajoTurnoResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
                 resultado.Code = _code;

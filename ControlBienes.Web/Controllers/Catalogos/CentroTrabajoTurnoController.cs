@@ -23,10 +23,10 @@ namespace ControlBienes.Web.Controllers.Catalogos
 		[ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(EntityResponse<EntCentroTrabajoTurnoResponse>))]
 		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(EntityResponse<EntCentroTrabajoTurnoResponse>))]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(EntityResponse<EntCentroTrabajoTurnoResponse>))]
-		public async Task<EntityResponse<IEnumerable<EntCentroTrabajoTurnoResponse>>> CObtenerTodosCentroTrabajoTurno()
+		public async Task<EntityResponse<IEnumerable<EntCentroTrabajoTurnoResponse>>> CObtenerTodosCentroTrabajoTurno([FromQuery] bool? activo)
 		{
 
-			return await _servicio.BObtenerTodosAsync();
+			return await _servicio.BObtenerTodosAsync(activo);
 		}
 
 		[HttpGet("{id}")]
