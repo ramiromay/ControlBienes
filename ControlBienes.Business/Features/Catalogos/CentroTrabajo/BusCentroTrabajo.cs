@@ -200,7 +200,7 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajo
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntCentroTrabajoResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntCentroTrabajoResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntCentroTrabajoResponse>>();
@@ -213,7 +213,9 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajo
                     f => f.Municipio!,
                     f => f.UnidadAdministrativa!
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(includes);
+                var entidades = await _repositorio.DObtenerTodosAsync(
+                    incluir: includes,
+                    predicado: e => e.bActivo == activo.Value);
                 resultado.Result = _mapper.Map<IEnumerable<EntCentroTrabajoResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
