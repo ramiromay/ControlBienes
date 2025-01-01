@@ -3,11 +3,13 @@ using ControlBienes.Business.Contrats.Catalogs;
 using ControlBienes.Business.Exceptions;
 using ControlBienes.Business.Genericos;
 using ControlBienes.Data.Contrats.Catalogos;
+using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.Familia;
 using ControlBienes.Entities.Constants;
 using ControlBienes.Utils;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Linq.Expressions;
 using System.Net;
 
@@ -192,13 +194,16 @@ namespace ControlBienes.Business.Features.Catalogos.Familia
             var resultado = new EntityResponse<IEnumerable<EntFamiliaResponse>>();
 
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todas las familias");
-            try
+			try
             {
-                var includes = new List<Expression<Func<EntFamilia, object>>>()
+				Expression<Func<EntFamilia, bool>>? predicado = activo.HasValue
+                    ? r => r.bActivo == activo.Value
+                    : null;
+				var includes = new List<Expression<Func<EntFamilia, object>>>()
                 {
                     f => f.TipoBien!
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(includes);
+                var entidades = await _repositorio.DObtenerTodosAsync(inclur: includes, predicado: predicado);
                 resultado.Result = _mapper.Map<IEnumerable<EntFamiliaResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
