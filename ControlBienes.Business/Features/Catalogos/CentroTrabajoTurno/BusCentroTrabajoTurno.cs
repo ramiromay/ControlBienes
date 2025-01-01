@@ -4,6 +4,7 @@ using ControlBienes.Business.Exceptions;
 using ControlBienes.Business.Features.Catalogos.Color;
 using ControlBienes.Business.Genericos;
 using ControlBienes.Data.Contrats.Catalogos;
+using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.CentroTrabajoTurno;
 using ControlBienes.Entities.Catalogos.Color;
 using ControlBienes.Entities.Catalogos.Familia;
@@ -159,13 +160,13 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajoTurno
 
         public async Task<EntityResponse<EntCentroTrabajoTurnoResponse>> BObtenerRegistroAsync(long id)
         {
-            var nombreMetodo = nameof(BObtenerTodosAsync);
+            var nombreMetodo = nameof(BObtenerRegistroAsync);
             var resultado = new EntityResponse<EntCentroTrabajoTurnoResponse>();
 
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar el turno del centro de trabajo");
             try
             {
-                var includes = new List<Expression<Func<EntCentroTrabajoTurno, object>>>()
+				var includes = new List<Expression<Func<EntCentroTrabajoTurno, object>>>()
                 {
                     f => f.CentroTrabajo,
                     f => f.Turno
@@ -199,14 +200,16 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajoTurno
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los turnos de los centro de trabajo");
             try
             {
-                var includes = new List<Expression<Func<EntCentroTrabajoTurno, object>>>()
+				Expression<Func<EntCentroTrabajoTurno, bool>>? predicado = activo.HasValue
+                    ? r => r.bActivo == activo.Value
+                    : null;
+
+				var includes = new List<Expression<Func<EntCentroTrabajoTurno, object>>>()
                 {
                     f => f.CentroTrabajo,
                     f => f.Turno
                 };
-				var entidades = await _repositorio.DObtenerTodosAsync(
-					incluir: includes,
-					predicado: e => e.bActivo == activo.Value);
+				var entidades = await _repositorio.DObtenerTodosAsync(incluir: includes, predicado: predicado);
 				resultado.Result = _mapper.Map<IEnumerable<EntCentroTrabajoTurnoResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
