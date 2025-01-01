@@ -190,7 +190,7 @@ namespace ControlBienes.Business.Features.Catalogos.CaracteristicaBien
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntCaracteristicaBienResponse>>> BObtenerTodosAsync(bool? activos)
+        public async Task<EntityResponse<IEnumerable<EntCaracteristicaBienResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntCaracteristicaBienResponse>>();
