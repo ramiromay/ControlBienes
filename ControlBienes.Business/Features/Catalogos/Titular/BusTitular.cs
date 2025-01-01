@@ -4,6 +4,7 @@ using ControlBienes.Business.Exceptions;
 using ControlBienes.Business.Features.Catalogos.Color;
 using ControlBienes.Business.Genericos;
 using ControlBienes.Data.Contrats.Catalogos;
+using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.Color;
 using ControlBienes.Entities.Catalogos.Familia;
 using ControlBienes.Entities.Catalogos.Titular;
@@ -187,7 +188,7 @@ namespace ControlBienes.Business.Features.Catalogos.Titular
             return resultado;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntTitularResponse>>> BObtenerTodosAsync()
+        public async Task<EntityResponse<IEnumerable<EntTitularResponse>>> BObtenerTodosAsync(bool? activo)
         {
             var nombreMetodo = nameof(BObtenerTodosAsync);
             var resultado = new EntityResponse<IEnumerable<EntTitularResponse>>();
@@ -195,12 +196,15 @@ namespace ControlBienes.Business.Features.Catalogos.Titular
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los titulares");
             try
             {
-                var includes = new List<Expression<Func<EntTitular, object>>>()
+				Expression<Func<EntTitular, bool>>? predicado = activo.HasValue
+                    ? r => r.bActivo == activo.Value
+                    : null;
+				var includes = new List<Expression<Func<EntTitular, object>>>()
                 {
                     f => f.CentroTrabajoTurno.CentroTrabajo!,
                     f => f.CentroTrabajoTurno.Turno!,
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(includes);
+                var entidades = await _repositorio.DObtenerTodosAsync(incluir: includes, predicado: predicado);
                 resultado.Result = _mapper.Map<IEnumerable<EntTitularResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
