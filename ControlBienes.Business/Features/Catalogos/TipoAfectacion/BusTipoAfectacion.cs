@@ -166,7 +166,7 @@ namespace ControlBienes.Business.Features.Catalogos.TipoAfectacion
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos los tipos de afectacion");
             try
             {
-				Expression<Func<EntCaracteristicaBien, bool>>? predicado = activo.HasValue
+				Expression<Func<EntTipoAfectacion, bool>>? predicado = activo.HasValue
                     ? r => r.bActivo == activo.Value
                     : null;
 				var entidades = await _repositorio.DObtenerTodosAsync(predicado: predicado);
