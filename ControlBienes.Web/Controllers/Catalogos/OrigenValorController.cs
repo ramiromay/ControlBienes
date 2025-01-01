@@ -22,10 +22,10 @@ namespace ControlBienes.Web.Controllers.Catalogos
 		[ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(EntityResponse<EntOrigenValorResponse>))]
 		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(EntityResponse<EntOrigenValorResponse>))]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(EntityResponse<EntOrigenValorResponse>))]
-		public async Task<EntityResponse<IEnumerable<EntOrigenValorResponse>>> CObtenerTodosColores()
+		public async Task<EntityResponse<IEnumerable<EntOrigenValorResponse>>> CObtenerTodosColores([FromQuery] bool? activo)
 		{
 
-			return await _servicio.BObtenerTodosAsync();
+			return await _servicio.BObtenerTodosAsync(activo);
 		}
 
 		[HttpGet("{id}")]
