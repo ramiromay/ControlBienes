@@ -9,5 +9,6 @@ namespace ControlBienes.Data.Contrats.Patrimonio
 {
 	public interface IDatSolicitud : IDatProyeccion<EntSolicitud>
 	{
+		Task<int> DCambiarEtapaAsync(EntSolicitud entity, long idEtapaSiguiente);
 	}
 }

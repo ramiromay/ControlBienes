@@ -8,8 +8,11 @@ namespace ControlBienes.Data.Contrats
     public interface IDat<T> where T : class
     {
         Task<int> DCrearAsync(T entidad);
+        Task<int> DCrearListaAsync(IEnumerable<T> entities);
 		Task<int> DActualizarAsync(T entidad);
-        Task<IReadOnlyList<T>> DObtenerTodosAsync(
+        Task<int> DActualizarListaAsync(IEnumerable<T> entities);
+
+		Task<IReadOnlyList<T>> DObtenerTodosAsync(
             List<Expression<Func<T, object>>>? incluir = null,
             Expression<Func<T, bool>>? predicado = null,
             bool desactivarTracking = true
@@ -21,8 +24,11 @@ namespace ControlBienes.Data.Contrats
         );
         Task<T?> DObtenerRegistroAsync(long id);
         Task<bool> DExisteRegistroAsync(Expression<Func<T, bool>> predicado);
+        Task<bool> DExistenRegistrosAsync(IEnumerable<long> ids, Func<T, long> idSelector);
 		Task<IDbContextTransaction> DBeginTransactionAsync();
         Task<int> DGuardarCambiosAsync();
+
+        void DQuitarRastreo(T entidad);
         bool DObtenerEntidadesRastreadas(T entidad);
 
 	}

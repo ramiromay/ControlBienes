@@ -1,4 +1,4 @@
-﻿using ControlBienes.Entities.Almacen;
+﻿using ControlBienes.Entities.Almacen.Bien;
 using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.Familia;
 using ControlBienes.Entities.General.BMS;
@@ -23,7 +23,7 @@ public partial class EntSubfamilia : EntCatalogoGenerico
 
     public double dValorRecuperable { get; set; }
 
-    public virtual ICollection<EntrBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntrBienPatrimonio>();
+    public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
 
     public virtual ICollection<EntBienAlmacen> BienesAlmacen { get; set; } = new List<EntBienAlmacen>();
 

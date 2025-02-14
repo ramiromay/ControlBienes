@@ -1,13 +1,9 @@
-﻿using ControlBienes.Entities.Patrimonio.Solicitud;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ControlBienes.Entities.Patrimonio.DetalleSolicitud;
 
 namespace ControlBienes.Data.Contrats.Patrimonio
 {
 	public interface IDatDetalleSolicitud : IDatProyeccion<EntDetalleSolicitud>
 	{
+		Task<int> DCambiarEtapaAsync(long idDetalleSolicitud, long idEtapa);
 	}
 }

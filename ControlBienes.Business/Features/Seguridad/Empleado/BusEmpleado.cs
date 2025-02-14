@@ -14,6 +14,9 @@ using ControlBienes.Entities.Seguridad.Empleado;
 using ControlBienes.Entities.Seguridad.Usuario;
 using ControlBienes.Entities.Seguridad.UsuarioPermiso;
 using ControlBienes.Entities.Seguridad.UsuarioRol;
+using ControlBienes.Services.Constants;
+using ControlBienes.Services.Contracts;
+using ControlBienes.Services.Models;
 using ControlBienes.Utils;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -33,6 +36,7 @@ namespace ControlBienes.Business.Features.Seguridad.Empleado
 	public class BusEmpleado : IBusEmpleado
 	{
 
+		private readonly IEmailService _emailService;
 		private readonly IDatEmpleado _repositorio;
 		private readonly IDatUsuario _repositorioUsuario;
 		private readonly IDatUsuarioPermiso _repositorioUsuarioPermiso;
@@ -48,7 +52,8 @@ namespace ControlBienes.Business.Features.Seguridad.Empleado
 		const EnumCodigoOperacion _code = EnumCodigoOperacion.CodeOkEmpleado;
 		const EnumCodigoOperacion _codeError = EnumCodigoOperacion.CodeErrorEmpleado;
 
-		public BusEmpleado(IDatEmpleado repositorio, 
+		public BusEmpleado(IDatEmpleado repositorio,
+			IEmailService emailService,
 			UserManager<EntUsuario> userManager, 
 			IDatUsuario repositoriooUsuario,
 			IDatUsuarioPermiso repositorioUsuarioPermiso,
@@ -61,6 +66,7 @@ namespace ControlBienes.Business.Features.Seguridad.Empleado
 			ILogger<BusEmpleado> logger,
 			IValidator<EntEmpleadoRequest> validator)
 		{
+			_emailService = emailService;
 			_repositorio = repositorio;
 			_userManager = userManager;
 			_repositorioUsuario = repositoriooUsuario;
@@ -91,7 +97,7 @@ namespace ControlBienes.Business.Features.Seguridad.Empleado
 
 		private string BValidarContraseniasActualizacion(EntUsuario usuario, EntEmpleadoRequest request)
 		{
-			if (!string.IsNullOrEmpty(request.ContraseniaActual))
+			if (!string.IsNullOrEmpty(request.ContraseniaActual) && usuario != null)
 			{
 				var passwordHasher = new PasswordHasher<EntUsuario>();
 				var result = passwordHasher.VerifyHashedPassword(usuario, usuario.PasswordHash, request.ContraseniaActual);
@@ -321,6 +327,17 @@ namespace ControlBienes.Business.Features.Seguridad.Empleado
 				var resultUsuarioRol = await _repositorioUsuarioRol.DCrearRolesUsuarioAsync(usuario.Id, rolesIds);
 
 				var resultEmpleado = await _repositorio.DCrearAsync(entidad);
+
+				var email = new EmailModels
+				{
+					To = request.Email,
+					Name = request.Nombres.Split(" ")[0],
+					LastName = request.ApellidoPaterno,
+					Subject = EmailTemplateConstants.WelcomeSubject,
+					Template = EnumEmailTemplate.Welcome
+				};
+				await _emailService.BSendEmailAsync(email);
+
 				await transaction.CommitAsync();
 				resultado.Success(resultUsuarioPermisos + resultUsuarioRol + resultEmpleado, _code);
 			}

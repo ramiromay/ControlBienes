@@ -1,0 +1,1743 @@
+﻿using AutoMapper;
+using ControlBienes.Business.Contrats.Patrimonio;
+using ControlBienes.Business.Contrats.Seguridad;
+using ControlBienes.Business.Exceptions;
+using ControlBienes.Business.Features.Patrimonio.TramiteMueble;
+using ControlBienes.Business.Genericos;
+using ControlBienes.Data.Contrats.Catalogos;
+using ControlBienes.Data.Contrats.General;
+using ControlBienes.Data.Contrats.Patrimonio;
+using ControlBienes.Data.Contrats.Seguridad;
+using ControlBienes.Entities.Catalogos.Familia;
+using ControlBienes.Entities.Catalogos.Subfamilia;
+using ControlBienes.Entities.Constants;
+using ControlBienes.Entities.General.BMS;
+using ControlBienes.Entities.General.Cuenta;
+using ControlBienes.Entities.General.UnidadAdministrativa;
+using ControlBienes.Entities.Patrimonio.Alta;
+using ControlBienes.Entities.Patrimonio.Baja;
+using ControlBienes.Entities.Patrimonio.Bien;
+using ControlBienes.Entities.Patrimonio.DatoGeneral;
+using ControlBienes.Entities.Patrimonio.DatoVehicular;
+using ControlBienes.Entities.Patrimonio.Desincorporacion;
+using ControlBienes.Entities.Patrimonio.DestinoFinal;
+using ControlBienes.Entities.Patrimonio.DetalleAlta;
+using ControlBienes.Entities.Patrimonio.DetalleBaja;
+using ControlBienes.Entities.Patrimonio.DetalleDesincorporacion;
+using ControlBienes.Entities.Patrimonio.DetalleDestinoFinal;
+using ControlBienes.Entities.Patrimonio.DetalleModificacion;
+using ControlBienes.Entities.Patrimonio.DetalleMovimiento;
+using ControlBienes.Entities.Patrimonio.DetalleSolicitud;
+using ControlBienes.Entities.Patrimonio.Etapa;
+using ControlBienes.Entities.Patrimonio.Factura;
+using ControlBienes.Entities.Patrimonio.Historial;
+using ControlBienes.Entities.Patrimonio.Licitacion;
+using ControlBienes.Entities.Patrimonio.Modificacion;
+using ControlBienes.Entities.Patrimonio.MotivoTramite;
+using ControlBienes.Entities.Patrimonio.Movimiento;
+using ControlBienes.Entities.Patrimonio.Seguimiento;
+using ControlBienes.Entities.Sistema.Modulo;
+using ControlBienes.Entities.Sistema.SubModulo;
+using ControlBienes.Utils;
+using FluentValidation;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ControlBienes.Business.Features.Patrimonio.TramiteVehiculo
+{
+	public class BusTramiteVehiculo : IBusTramiteVehiculo
+	{
+		private readonly IDatDetalleAlta _repoAlta;
+		private readonly IDatDetalleModificacion _repoModificacion;
+		private readonly IDatDetalleBaja _repoBaja;
+		private readonly IDatDetalleSolicitud _repoDetalleSolicitud;
+		private readonly IDatBienPatrimonio _repoBienPatrimonio;
+		private readonly IDatEtapaTramite _repoEtapaTramite;
+		private readonly IDatSolicitud _repoSolicitud;
+		private readonly IDatSeguimiento _repoSeguimiento;
+		private readonly IDatHistorial _repoHistorial;
+		private readonly IDatFamilia _repoFamilia;
+		private readonly IDatSubfamilia _repoSubfamilia;
+		private readonly IDatMarca _repoMarca;
+		private readonly IDatBms _repoBms;
+		private readonly IDatEmpleado _repoEmpleado;
+		private readonly IDatPeriodo _repoPeriodo;
+		private readonly IDatUnidadAdministrativa _repoUnidadAdministrativa;
+		private readonly IDatTipoAdquisicion _repoTipoAdquisicion;
+		private readonly IDatEstadoFisico _repoEstadoFisico;
+		private readonly IDatColor _repoColor;
+		private readonly IDatUbicacion _repoUbicacion;
+		private readonly IDatMunicipio _repoMunicipio;
+		private readonly IDatCaracteristicaBien _repoCaracteristicaBien;
+		private readonly IDatResguardante _repoResguardante;
+		private readonly IDatDocumento _repoDocumento;
+		private readonly IBusIdentityAccess _servicioAcceso;
+		private readonly IMapper _mapper;
+		private readonly IValidator<EntDetalleAltaVehiculoRequest> _validatorAlta;
+		private readonly IValidator<EntDetalleModificacionVehiculoRequest> _validatorModificacion;
+		private readonly IValidator<EntDetalleBajaVehiculoRequest> _validatorBaja;
+		private readonly IValidator<EntDetalleDesincorporacionVehiculoRequest> _validatorDesincorporacion;
+		private readonly ILogger<BusTramiteMueble> _logger;
+		private const EnumCodigoOperacion _code = EnumCodigoOperacion.CodeOkTramiteMueble;
+		private const EnumCodigoOperacion _codeError = EnumCodigoOperacion.CodeErrorTramiteMueble;
+
+		public BusTramiteVehiculo(IDatDetalleAlta repoAlta, IDatEtapaTramite repoEtapaTramite, IDatDetalleSolicitud repoDetalleSolicitud, IDatSolicitud repoSolicitud, IDatSeguimiento repoSeguimiento, IDatHistorial repoHistorial, IDatFamilia repoFamilia, IDatSubfamilia repoSubfamilia, IDatMarca repoMarca, IDatBms repoBms, IDatPeriodo repoPeriodo, IDatUnidadAdministrativa repoUnidadAdministrativa, IDatTipoAdquisicion repoTipoAdquisicion, IDatEstadoFisico repoEstadoFisico, IDatColor repoColor, IDatUbicacion repoUbicacion, IDatMunicipio repoMunicipio, IDatCaracteristicaBien repoCaracteristicaBien, IDatResguardante repoResguardante, IMapper mapper, IValidator<EntDetalleAltaVehiculoRequest> validatorAlta, ILogger<BusTramiteMueble> logger, IDatBienPatrimonio repoBienPatrimonio, IDatDetalleModificacion repoModificacion, IValidator<EntDetalleModificacionVehiculoRequest> validatorModificacion, IDatDetalleBaja repoBaja, IValidator<EntDetalleBajaVehiculoRequest> validatorBaja, IDatDocumento repoDocumento, IValidator<EntDetalleDesincorporacionVehiculoRequest> validatorDesincorporacion, IDatEmpleado repoEmpleado, IBusIdentityAccess servicioAcceso)
+		{
+			_repoAlta = repoAlta;
+			_repoEtapaTramite = repoEtapaTramite;
+			_repoDetalleSolicitud = repoDetalleSolicitud;
+			_repoSolicitud = repoSolicitud;
+			_repoSeguimiento = repoSeguimiento;
+			_repoHistorial = repoHistorial;
+			_repoFamilia = repoFamilia;
+			_repoSubfamilia = repoSubfamilia;
+			_repoMarca = repoMarca;
+			_repoBms = repoBms;
+			_repoPeriodo = repoPeriodo;
+			_repoUnidadAdministrativa = repoUnidadAdministrativa;
+			_repoTipoAdquisicion = repoTipoAdquisicion;
+			_repoEstadoFisico = repoEstadoFisico;
+			_repoColor = repoColor;
+			_repoUbicacion = repoUbicacion;
+			_repoMunicipio = repoMunicipio;
+			_repoCaracteristicaBien = repoCaracteristicaBien;
+			_repoResguardante = repoResguardante;
+			_mapper = mapper;
+			_validatorAlta = validatorAlta;
+			_logger = logger;
+			_repoBienPatrimonio = repoBienPatrimonio;
+			_repoModificacion = repoModificacion;
+			_validatorModificacion = validatorModificacion;
+			_repoBaja = repoBaja;
+			_validatorBaja = validatorBaja;
+			_repoDocumento = repoDocumento;
+			_validatorDesincorporacion = validatorDesincorporacion;
+			_repoEmpleado = repoEmpleado;
+			_servicioAcceso = servicioAcceso;
+		}
+
+		private async Task<bool> BEsTramiteDonacion(long idSolicitud)
+		{
+			var solicitud = await _repoSolicitud.DObtenerRegistroAsync(e => e.iIdSolicitud == idSolicitud);
+			var idMotivoTramite = solicitud.iIdMotivoTramite;
+			return idMotivoTramite == 9 || idMotivoTramite == 32 || idMotivoTramite == 57;
+		}
+
+		private bool BDepreciaBien(decimal precioUnitario)
+		{
+			return precioUnitario != EntConstant.PrecioNoDeprecia;
+		}
+
+		private EntBienPatrimonio BGenerarBienVehiculo(EntDetalleSolicitud detalleSolicitud)
+		{
+			var detalleAlta = detalleSolicitud.DetalleAlta;
+			var licitacion = new EntLicitacion()
+			{
+				iNumeroLicitacion = detalleAlta.Licitacion.iNumeroLicitacion,
+				dtFecha = detalleAlta.Licitacion.dtFecha,
+				sObservaciones = detalleAlta.Licitacion.sObservaciones
+			};
+			var DatoGeneral = new EntDatoGeneral()
+			{
+				iIdColor = detalleAlta.DatoGeneral.iIdColor,
+				iIdMarca = detalleAlta.DatoGeneral.iIdMarca,
+				iIdClaveVehicular = detalleAlta.DatoGeneral.iIdClaveVehicular,
+				iIdLineaVehicular = detalleAlta.DatoGeneral.iIdLineaVehicular,
+				iIdVersionVehicular = detalleAlta.DatoGeneral.iIdVersionVehicular,
+				iIdClaseVehicular = detalleAlta.DatoGeneral.iIdClaseVehicular,
+				iIdTipoVehicular = detalleAlta.DatoGeneral.iIdTipoVehicular,
+				iIdCombustibleVehicular = detalleAlta.DatoGeneral.iIdCombustibleVehicular
+
+			};
+			var DatoVehicular = new EntDatoVehicular()
+			{
+				iAnioEmision = detalleAlta.Factura.DatoVehicular.iAnioEmision,
+				sNumeroPlaca = detalleAlta.Factura.DatoVehicular.sNumeroPlaca,
+				iNumeroMotor = detalleAlta.Factura.DatoVehicular.iNumeroMotor,
+				iAnioModelo = detalleAlta.Factura.DatoVehicular.iAnioModelo,
+				nNumeroEconomico = detalleAlta.Factura.DatoVehicular.nNumeroEconomico,
+			};
+			var Factura = new EntFactura()
+			{
+				iGarantiaDias = detalleAlta.Factura.iGarantiaDias,
+				dtFecha = detalleAlta.Factura.dtFecha,
+				sFolioFactura = detalleAlta.Factura.sFolioFactura,
+				DatoVehicular = DatoVehicular
+			};
+			return new EntBienPatrimonio
+			{
+				iIdSolicitud = detalleSolicitud.iIdSolicitud,
+				iIdPeriodo = detalleSolicitud.Solicitud.iIdPeriodo,
+				iIdTipoBien = detalleAlta.iIdTipoBien,
+				iIdFamilia = detalleAlta.iIdFamilia,
+				iIdSubfamilia = detalleAlta.iIdSubfamilia,
+				iIdBms = detalleAlta.iIdBms.Value,
+				sReferenciaConac = detalleAlta.sReferenciaConac,
+				sPartidaEspecifica = detalleAlta.sPartidaEspecifica,
+				sCuentaActivo = detalleAlta.sCuentaActivo,
+				sCuentaActualizacion = detalleAlta.sCuentaActualizacion,
+				sDescripcion = detalleAlta.sDescripcion,
+				iIdUnidadAdministrativa = detalleAlta.iIdUnidadAdministrativa,
+				sRequisicion = detalleAlta.sRequisicion,
+				sOrdenCompra = detalleAlta.sOrdenCompra,
+				iIdTipoAdquisicion = detalleAlta.iIdTipoAdquisicion,
+				sNoSeries = detalleAlta.sNoSeries,
+				sFolioAnterior = detalleAlta.sFolioAnterior,
+				iIdEstadoFisico = detalleAlta.iIdEstadoFisico,
+				DatoGeneral = DatoGeneral,
+				Licitacion = licitacion,
+				Factura = Factura,
+				sCuentaPorPagar = detalleAlta.sCuentaPorPagar,
+				sSustituyeBv = detalleAlta.sSustituyeBv,
+				dPrecioUnitario = detalleAlta.dPrecioUnitario,
+				dtFechaAdquisicion = detalleAlta.dtFechaAdquisicion,
+				iAniosVida = detalleAlta.iAniosVida,
+				dtFechaInicioUso = detalleAlta.dtFechaInicioUso,
+				dPrecioDesechable = detalleAlta.dPrecioDesechable,
+				sObservacionBien = detalleAlta.sObservacionBien,
+				iIdUbicacion = detalleAlta.iIdUbicacion.Value,
+				iIdMunicipio = detalleAlta.iIdMunicipio.Value,
+				sCaracteristicas = detalleAlta.sCaracteristicas,
+				sResguardantes = detalleAlta.sResguardantes,
+				sObservacionResponsable = detalleAlta.sObservacionResponsable,
+				dtFechaAlta = DateTime.Now.Date,
+				bActivo = true,
+				bDeprecia = BDepreciaBien(detalleAlta.dPrecioUnitario)
+			};
+		}
+
+		private async Task BAplicarVOBOAsync(EntDetalleSolicitud detalleSolicitud)
+		{
+
+			if (detalleSolicitud.DetalleAlta != null)
+			{
+				var detalleAlta = detalleSolicitud.DetalleAlta;
+				if (string.IsNullOrEmpty(detalleAlta.sResguardantes))
+					throw new BusConflictoException("No se puede cambiar la etapa a VOBO hasta que se le asigne al menos un reguardante al tramite.");
+
+				var bienMueble = BGenerarBienVehiculo(detalleSolicitud);
+				await _repoBienPatrimonio.DCrearAsync(bienMueble);
+
+				var folioBien = BusTransformarUtils.UGenerarFolioBien(BusTransformarUtils.PrefijoVehiculo, bienMueble.iIdBien);
+				bienMueble.sFolioBien = folioBien;
+				await _repoBienPatrimonio.DActualizarAsync(bienMueble);
+
+				detalleAlta.sFolioBien = folioBien;
+				await _repoAlta.DActualizarAsync(detalleAlta);
+
+				var historial = BGenerarHistorial(bienMueble, detalleSolicitud);
+				await _repoHistorial.DCrearAsync(historial);
+			}
+			else if (detalleSolicitud.DetalleBaja != null)
+			{
+				var detalleBaja = detalleSolicitud.DetalleBaja.Baja;
+				var foliosBien = detalleBaja.sFolioBien;
+				var listFoliosBien = foliosBien.Split(",");
+				var detalles = await _repoBienPatrimonio.DObtenerTodosAsync(predicado: e => listFoliosBien.Contains(e.sFolioBien), desactivarTracking: false);
+
+				foreach (var detalle in detalles)
+				{
+					detalle.bActivo = false;
+					detalle.bDeprecia = false;
+					detalle.bEnProceso = false;
+					detalle.dtFechaBaja = DateTime.Now;
+					detalle.sMotivoBaja = detalleBaja.sObservaciones;
+					await _repoBienPatrimonio.DActualizarAsync(detalle);
+
+					var historial = BGenerarHistorial(detalle, detalleSolicitud);
+					await _repoHistorial.DCrearAsync(historial);
+				}
+
+			}
+			else if (detalleSolicitud.DetalleMovimiento != null)
+			{
+				var idMotivoTramite = detalleSolicitud.Solicitud.iIdMotivoTramite;
+				var movimiento = detalleSolicitud.DetalleMovimiento;
+				var foliosBien = movimiento.sFolioBien;
+				var listFoliosBien = foliosBien.Split(",");
+				var detalles = await _repoBienPatrimonio.DObtenerTodosAsync(predicado: e => listFoliosBien.Contains(e.sFolioBien), desactivarTracking: false);
+
+				foreach (var detalle in detalles)
+				{
+					if (idMotivoTramite == (long)EnumMotivoTramite.TransferenciasVehiculos || 
+						idMotivoTramite == (long)EnumMotivoTramite.CambioDeCentroDeCostosVehiculos)
+					{
+						detalle.iIdUnidadAdministrativa = movimiento.iIdNuevaUnidadAdministrativa.Value;
+					}
+					else if (idMotivoTramite == (long)EnumMotivoTramite.CambioDeResguardante)
+					{
+						detalle.sResguardantes = movimiento.sResponsable;
+					}
+					detalle.bEnProceso = false;
+					detalle.iIdMunicipio = movimiento.iIdMunicipio;
+					detalle.iIdUbicacion = movimiento.iIdUbicacion.Value;
+
+					await _repoBienPatrimonio.DActualizarAsync(detalle);
+					var historial = BGenerarHistorial(detalle, detalleSolicitud);
+					await _repoHistorial.DCrearAsync(historial);
+				}
+
+			}
+			else if (detalleSolicitud.DetalleDesincorporacion != null)
+			{
+				var desincorporacion = detalleSolicitud.DetalleDesincorporacion;
+				var foliosBien = desincorporacion.sFolioBien;
+				var listFoliosBien = foliosBien.Split(",");
+				var detalles = await _repoBienPatrimonio.DObtenerTodosAsync(predicado: e => listFoliosBien.Contains(e.sFolioBien), desactivarTracking: false);
+
+				foreach (var detalle in detalles)
+				{
+					detalle.bActivo = false;
+					detalle.bDeprecia = false;
+					detalle.bEnProceso = false;
+					detalle.dtFechaBaja = DateTime.Now;
+					detalle.sMotivoBaja = desincorporacion.sObservaciones;
+					await _repoBienPatrimonio.DActualizarAsync(detalle);
+					var historial = BGenerarHistorial(detalle, detalleSolicitud);
+					await _repoHistorial.DCrearAsync(historial);
+				}
+			}
+			else if (detalleSolicitud.DetalleDestinoFinal != null)
+			{
+				var tramiteActualizado = detalleSolicitud.DetalleDestinoFinal;
+				var foliosBien = tramiteActualizado.sFolioBien;
+				var listFoliosBien = foliosBien.Split(",");
+				var detalles = await _repoBienPatrimonio.DObtenerTodosAsync(predicado: e => listFoliosBien.Contains(e.sFolioBien), desactivarTracking: false);
+
+				foreach (var detalle in detalles)
+				{
+					detalle.bActivo = false;
+					detalle.bDeprecia = false;
+					detalle.bEnProceso = false;
+					detalle.dtFechaBaja = DateTime.Now;
+					detalle.sMotivoBaja = detalleSolicitud.Solicitud.iIdMotivoTramite == (long)EnumMotivoTramite.DestruccionVehiculos
+						? tramiteActualizado.DetalleDestruccion.sDescripcion
+						: tramiteActualizado.DetalleEnagenacion.sDescripcion;
+					await _repoBienPatrimonio.DActualizarAsync(detalle);
+					var historial = BGenerarHistorial(detalle, detalleSolicitud);
+					await _repoHistorial.DCrearAsync(historial);
+				}
+			}
+			else if (detalleSolicitud.DetalleModificacion != null)
+			{
+				var idMotivoTramite = detalleSolicitud.Solicitud.iIdMotivoTramite;
+				var tramiteActualizado = detalleSolicitud.DetalleModificacion;
+				var foliosBien = tramiteActualizado.sFolioBien;
+				var incluir = new List<Expression<Func<EntBienPatrimonio, object>>>()
+				{
+					e => e.Factura.DatoVehicular,
+					e => e.DatoGeneral,
+					e => e.Licitacion
+				};
+				var tramiteOriginal = await _repoBienPatrimonio.DObtenerRegistroAsync(incluir: incluir, predicado: e => e.sFolioBien == foliosBien, desactivarTracking: false);
+
+				if (idMotivoTramite == (long)EnumMotivoTramite.ActualizacionDeDatosDeLaFacturaDeBienesVehiculos)
+				{
+					var facturaActualizada = tramiteActualizado.Factura;
+					var facturaOriginal = tramiteOriginal.Factura;
+					facturaOriginal.sFolioFactura = facturaActualizada.sFolioFactura;
+					facturaOriginal.dtFecha = facturaActualizada.dtFecha;
+					facturaOriginal.iGarantiaDias = facturaActualizada.iGarantiaDias;
+
+					tramiteOriginal.dPrecioUnitario = tramiteActualizado.dPrecioUnitario;
+					tramiteOriginal.iAniosVida = tramiteActualizado.iAniosVida;
+					tramiteOriginal.dtFechaInicioUso = tramiteActualizado.dtFechaInicioUso;
+					tramiteOriginal.dPrecioDesechable = tramiteActualizado.dPrecioDesechable;
+					tramiteOriginal.dtFechaAdquisicion = tramiteActualizado.dtFechaAdquisicion;
+					tramiteOriginal.bDeprecia = BDepreciaBien(tramiteOriginal.dPrecioUnitario);
+
+				}
+				else if (idMotivoTramite == (long)EnumMotivoTramite.ActualizacionDeDatosDeBienesVehiculos)
+				{
+					tramiteOriginal.sCuentaPorPagar = tramiteActualizado.sCuentaPorPagar;
+					tramiteOriginal.sSustituyeBv = tramiteActualizado.sSustituyeBv;
+					tramiteOriginal.sDescripcion = tramiteActualizado.sDescripcion;
+					tramiteOriginal.sRequisicion = tramiteActualizado.sRequisicion;
+					tramiteOriginal.sOrdenCompra = tramiteActualizado.sOrdenCompra;
+					tramiteOriginal.iIdTipoAdquisicion = tramiteActualizado.iIdTipoAdquisicion;
+					tramiteOriginal.sNoSeries = tramiteActualizado.sNoSeries;
+					tramiteOriginal.sFolioAnterior = tramiteActualizado.sFolioAnterior;
+					tramiteOriginal.iIdEstadoFisico = tramiteActualizado.iIdEstadoFisico;
+					tramiteOriginal.sObservacionBien = tramiteActualizado.sObservacionBien;
+					tramiteOriginal.iIdUbicacion = tramiteActualizado.iIdUbicacion;
+					tramiteOriginal.iIdMunicipio = tramiteActualizado.iIdMunicipio;
+					tramiteOriginal.sCaracteristicas = tramiteActualizado.sCaracteristicas;
+					tramiteOriginal.sObservacionResponsable = tramiteActualizado.sObservacionResponsable;
+
+					var licitacionActualizada = tramiteActualizado.Licitacion;
+					var licitacionOriginal = tramiteOriginal.Licitacion;
+					licitacionOriginal.iNumeroLicitacion = licitacionActualizada.iNumeroLicitacion;
+					licitacionOriginal.dtFecha = licitacionActualizada.dtFecha;
+					licitacionOriginal.sObservaciones = licitacionActualizada.sObservaciones;
+
+					var datoGeneralActualizado = tramiteActualizado.DatoGeneral;
+					var datoGeneralOriginal = tramiteOriginal.DatoGeneral;
+					datoGeneralOriginal.iIdMarca = datoGeneralActualizado.iIdMarca;
+					datoGeneralOriginal.iIdColor = datoGeneralActualizado.iIdColor;
+					datoGeneralOriginal.iIdClaveVehicular = datoGeneralActualizado.iIdClaveVehicular;
+					datoGeneralOriginal.iIdLineaVehicular = datoGeneralActualizado.iIdLineaVehicular;
+					datoGeneralOriginal.iIdVersionVehicular = datoGeneralActualizado.iIdVersionVehicular;
+					datoGeneralOriginal.iIdClaseVehicular = datoGeneralActualizado.iIdClaseVehicular;
+					datoGeneralOriginal.iIdTipoVehicular = datoGeneralActualizado.iIdTipoVehicular;
+					datoGeneralOriginal.iIdCombustibleVehicular = datoGeneralActualizado.iIdCombustibleVehicular;
+
+					var factureVehiculoOriginal = tramiteOriginal.Factura.DatoVehicular;
+					var factureVehiculoActualizado = tramiteActualizado.Factura.DatoVehicular;
+					factureVehiculoOriginal.sNumeroPlaca = factureVehiculoActualizado.sNumeroPlaca;
+					factureVehiculoOriginal.iAnioEmision = factureVehiculoActualizado.iAnioEmision;
+					factureVehiculoOriginal.iNumeroMotor = factureVehiculoActualizado.iNumeroMotor;
+					factureVehiculoOriginal.iAnioModelo = factureVehiculoActualizado.iAnioModelo;
+					factureVehiculoOriginal.nNumeroEconomico = factureVehiculoActualizado.nNumeroEconomico;
+				}
+				tramiteOriginal.bEnProceso = false;
+				await _repoBienPatrimonio.DActualizarAsync(tramiteOriginal);
+				var historial = BGenerarHistorial(tramiteOriginal, detalleSolicitud);
+				await _repoHistorial.DCrearAsync(historial);
+			}
+		}
+
+		private async Task BAplicarRechazadoAsync(EntDetalleSolicitud detalleSolicitud)
+		{
+			if (detalleSolicitud.DetalleAlta != null) return;
+			var foliosBien = detalleSolicitud.DetalleModificacion != null
+				? detalleSolicitud.DetalleModificacion.sFolioBien
+				: detalleSolicitud.DetalleBaja != null
+					? detalleSolicitud.DetalleBaja.Baja.sFolioBien
+					: detalleSolicitud.DetalleMovimiento != null
+						? detalleSolicitud.DetalleMovimiento.sFolioBien
+						: detalleSolicitud.DetalleDesincorporacion != null
+							? detalleSolicitud.DetalleDesincorporacion.sFolioBien
+							: detalleSolicitud.DetalleDestinoFinal != null
+								? detalleSolicitud.DetalleDestinoFinal.sFolioBien
+								: "";
+			var listFoliosBien = foliosBien.Split(",");
+			var bienes = await _repoBienPatrimonio.DObtenerTodosAsync(predicado: e => listFoliosBien.Contains(e.sFolioBien), desactivarTracking: false);
+			foreach (var bien in bienes)
+			{
+				bien.bEnProceso = false;
+				await _repoBienPatrimonio.DActualizarAsync(bien);
+			}
+		}
+
+		public async Task<EntityResponse<int>> BCambiarEtapaTramiteAsync(long idDetalleSolicitud, long? idEtapa)
+		{
+			var nombreMetodo = nameof(BCambiarEtapaTramiteAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para cambiar la etapa de tramite de bienes muebles");
+			try
+			{
+
+				if (!idEtapa.HasValue)
+					throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, "La Etapa a la que quiere cambiar es requerida");
+
+				var incluir = new List<Expression<Func<EntDetalleSolicitud, object>>>()
+				{
+					e => e.DetalleAlta.Factura.DatoVehicular,
+					e => e.DetalleAlta.DatoGeneral,
+					e => e.DetalleAlta.Licitacion,
+					e => e.DetalleBaja.Baja,
+					e => e.DetalleDesincorporacion,
+					e => e.DetalleDestinoFinal.DetalleDestruccion,
+					e => e.DetalleDestinoFinal.DetalleEnagenacion,
+					e => e.DetalleModificacion.Factura.DatoVehicular,
+					e => e.DetalleModificacion.Licitacion,
+					e => e.DetalleModificacion.DatoGeneral,
+					e => e.DetalleMovimiento,
+					e => e.Solicitud
+				};
+				var detalleSolicitud = await _repoDetalleSolicitud.DObtenerRegistroAsync(e => e.iIdDetalleSolicitud == idDetalleSolicitud, incluir: incluir)
+					?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+				var etapaSiguienteCorrecta = await _repoEtapaTramite.DValidarCambioEtapaAsync(detalleSolicitud, idEtapa.Value);
+
+				if (!etapaSiguienteCorrecta)
+					throw new BusConflictoException("No se permite avanzar a esta etapa desde la etapa actual.");
+
+				var resultCambioEtapa = await _repoDetalleSolicitud.DCambiarEtapaAsync(detalleSolicitud.iIdDetalleSolicitud, idEtapa.Value);
+				var segumiento = BGenerarSeguimiento(detalleSolicitud, idEtapa.Value);
+				var resultSegumiento = await _repoSeguimiento.DCrearAsync(segumiento);
+
+				if (idEtapa.Value == (long)EnumEtapa.VOBO)
+					await BAplicarVOBOAsync(detalleSolicitud);
+
+				else if (idEtapa.Value == (long)EnumEtapa.Rechazo)
+					await BAplicarRechazadoAsync(detalleSolicitud);
+
+				await transaction.CommitAsync();
+				resultado.Success(resultCambioEtapa + resultSegumiento, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar crear la solicitud de bienes muebles"
+				);
+			}
+
+			return resultado;
+		}
+
+		private EntHistorial BGenerarHistorial(EntBienPatrimonio bienMueble, EntDetalleSolicitud detalle)
+		{
+			var idUsuario = _servicioAcceso.BObtenerIdUsuario();
+			return new EntHistorial()
+			{
+				iIdBien = bienMueble.iIdBien,
+				iIdSolicitud = detalle.iIdSolicitud,
+				iIdModulo = (long)EnumModulo.SistemaIntegralDePatrimonio,
+				iIdSubModulo = (long)EnumSubModulo.AdministradorCedulasBienesVehiculares,
+				iIdUsuario = idUsuario
+			};
+		}
+
+		private EntSeguimiento BGenerarSeguimiento(EntDetalleSolicitud detalleSolicitud, long idEtapa)
+		{
+			var idUsuario = _servicioAcceso.BObtenerIdUsuario();
+			return new EntSeguimiento()
+			{
+				iIdDetalleSolicitud = detalleSolicitud.iIdDetalleSolicitud,
+				iIdEtapa = idEtapa,
+				dtFechaHora = DateTime.Now,
+				iIdModulo = (long)EnumModulo.SistemaIntegralDePatrimonio,
+				iIdSubModulo = (long)EnumSubModulo.AdministradorCedulasBienesVehiculares,
+				iIdUsuario = idUsuario
+			};
+		}
+
+		private async Task BCompletarDatosTramiteAltaAsync(EntDetalleAltaVehiculoRequest request, EntDetalleAlta entidad, EntUnidadAdministrativa unidadAdministrativa, EntFamilia familia, EntSubfamilia subfamilia, EntBms bms)
+		{
+			var periodo = await _repoPeriodo.DObtenerRegistroAsync(e => e.bActivo);
+			var idPeriodo = periodo.iIdPeriodo;
+			var bmsPartida = bms.sPartidas.Split(',')
+				.FirstOrDefault(partida => partida.StartsWith("5"));
+			var esDonacion = await BEsTramiteDonacion(request.IdSolicitud.Value);
+
+			entidad.iIdUnidadAdministrativa = unidadAdministrativa.iIdUnidadAdministrativa;
+			entidad.sPartidaEspecifica = $"{EntConstant.DefaultPartida}.{familia.iIdFamilia}.{subfamilia.iIdSubfamilia}0.{bmsPartida}";
+			entidad.sCuentaActivo = $"{EntPlanCuenta.CuentaNo_124}.{familia.iNumeroCuenta}.{subfamilia.iNumeroCuenta}.{idPeriodo}.{unidadAdministrativa.sNivelCompleto}.{EntConstant.DefaultFuenteFinanciamiento}";
+			entidad.sCuentaActualizacion = esDonacion ? EntPlanCuenta.CuentaNo_3121 : entidad.sCuentaActivo;
+		}
+
+		private void BValidarRequestAlta(EntDetalleAltaVehiculoRequest request)
+		{
+			var resultadoValidacion = _validatorAlta.Validate(request);
+			if (resultadoValidacion.IsValid) return;
+			var errores = BusConvertirErrors.UFormatearTexto(resultadoValidacion.Errors);
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, errores);
+		}
+
+		private async Task BValidarRequestAltaBDAsync(EntDetalleAltaVehiculoRequest request, EntDetalleAlta entidad)
+		{
+			var existeSolicitud = await _repoSolicitud.DExisteRegistroAsync(e => e.iIdSolicitud == request.IdSolicitud);
+			var familia = await _repoFamilia.DObtenerRegistroAsync(request.IdFamilia.Value);
+			var existeFamilia = familia != null;
+			var subFamilia = await _repoSubfamilia.DObtenerRegistroAsync(request.IdSubfamilia.Value);
+			var existeSubFamilia = familia != null;
+			var perteneceSubFamiliaAFamilia = existeFamilia && existeSubFamilia && subFamilia.iIdFamilia == familia.iIdFamilia;
+			var bms = await _repoBms.DObtenerRegistroAsync(request.IdBms.Value);
+			var existeBms = bms != null;
+			var perteneceBmsASubFamilia = existeSubFamilia && bms.iIdSubfamilia == subFamilia.iIdSubfamilia;
+			var unidadAdministrativa = await _repoUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
+			var existeUnidadAdministrativa = unidadAdministrativa != null;
+			var existeRequisicion = await _repoTipoAdquisicion.DExisteRegistroAsync(e => e.iIdTipoAdquisicion == request.IdTipoAdquisicion);
+			var existeEstadoFisico = !request.IdMarca.HasValue ||
+				await _repoMarca.DExisteRegistroAsync(e => e.iIdMarca == request.IdMarca);
+			var existeColor = !request.IdColor.HasValue ||
+				await _repoColor.DExisteRegistroAsync(e => e.iIdColor == request.IdColor);
+			var existeUbicacion = await _repoUbicacion.DExisteRegistroAsync(e => e.iIdUbicacion == request.IdUbicacion);
+			var existeMunicipio = await _repoMunicipio.DExisteRegistroAsync(e => e.iIdMunicipio == request.IdMunicipio);
+
+			var idsCaracteristicas = BusTransformarUtils.UObjetosToIDs(request.Caracteristicas);
+			var existenCaracteristiasBien = await _repoCaracteristicaBien.DExistenRegistrosAsync(idsCaracteristicas, e => e.iIdCaracteristicaBien);
+			var idsResponsables = request.Responsables.Split(',', StringSplitOptions.RemoveEmptyEntries)
+							.Select(x => long.Parse(x))
+							.ToList();
+
+			var existenResguardantes = await _repoResguardante.DExistenRegistrosAsync(idsResponsables, e => e.iIdResguardante);
+
+			var errores = new StringBuilder(string.Empty);
+			if (!existeSolicitud) errores.Append("La Solicitud no se encuentra registrada,");
+			if (!existeFamilia) errores.Append("La Familia no se encuentra registrada,");
+			if (!existeSubFamilia) errores.Append("La Subfamilia no se encuentra registrada,");
+			if (!perteneceSubFamiliaAFamilia) errores.Append("La Subfamilia no pertenece a la Familia,");
+			if (!existeBms) errores.Append("El BMS no se encuentra registrado,");
+			if (!perteneceBmsASubFamilia) errores.Append("El BMS no pertenece a la Familia y Subfamilia, ");
+			if (!existeUnidadAdministrativa) errores.Append("El Centro de Costo no se encuentra registrado,");
+			if (!existeRequisicion) errores.Append("La Adquisicion no se encuentra registrada,");
+			if (!existeEstadoFisico) errores.Append("El Estado Fisico no se encuentra registrado,");
+			if (!existeColor) errores.Append("El Color no se encuentra registrado,");
+			if (!existeUbicacion) errores.Append("La Ubicacion no se encuentra registrada,");
+			if (!existeMunicipio) errores.Append("El Municipio no se encuentra registrado,");
+			if (!existenCaracteristiasBien) errores.Append("Algunas Caracteristicas no se encuentran registradas,");
+			if (!existenResguardantes) errores.Append("Algunos Responsables no se encuentran registrados,");
+
+			string erroresConverter = errores.ToString();
+			if (string.IsNullOrEmpty(erroresConverter))
+			{
+				await BCompletarDatosTramiteAltaAsync(request, entidad, unidadAdministrativa, familia, subFamilia, bms);
+				return;
+			};
+			errores.Clear().Append(BusConvertirErrors.URemoverComillaFinal(erroresConverter));
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, errores.ToString());
+
+		}
+
+		public async Task<EntityResponse<int>> BCrearTramiteAltaAsync(EntDetalleAltaVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BCrearTramiteAltaAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para crear un tramite de alta de un bien vehiculo");
+			try
+			{
+				BValidarRequestAlta(request);
+				var detalleSolicitud = _mapper.Map<EntDetalleSolicitud>(request);
+				await BValidarRequestAltaBDAsync(request, detalleSolicitud.DetalleAlta);
+
+				var result = await _repoDetalleSolicitud.DCrearAsync(detalleSolicitud);
+				var seguimiento = BGenerarSeguimiento(detalleSolicitud, detalleSolicitud.iIdEtapa);
+				var resultadoSeguimiento = await _repoSeguimiento.DCrearAsync(seguimiento);
+				await transaction.CommitAsync();
+				resultado.Success(result + resultadoSeguimiento, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar crear el tramite de alta de un bien vehiculo"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<int>> BActualizarTramiteAltaAsync(long idDetalleSolicitud, EntDetalleAltaVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BActualizarTramiteAltaAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para actualizar un tramite de alta de un bien vehiculo");
+			try
+			{
+				var includes = new List<Expression<Func<EntDetalleSolicitud, object>>>()
+				{
+					e => e.DetalleAlta,
+					e => e.DetalleAlta.Licitacion,
+					e => e.DetalleAlta.DatoGeneral,
+					e => e.DetalleAlta.Factura.DatoVehicular
+				};
+				var detalleSolicitud = await _repoDetalleSolicitud.DObtenerRegistroAsync(
+					predicado: e => e.iIdDetalleSolicitud == idDetalleSolicitud,
+					incluir: includes,
+					desactivarTracking: false
+				) ?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+
+				if (detalleSolicitud.iIdEtapa != (long)EnumEtapa.CapturaInicial)
+					throw new BusConflictoException("No se puede modificar el trámite en la etapa actual.");
+
+				var detalleAlta = detalleSolicitud.DetalleAlta;
+				BValidarRequestAlta(request);
+				await BValidarRequestAltaBDAsync(request, detalleAlta);
+
+				detalleAlta.iIdFamilia = request.IdFamilia.Value;
+				detalleAlta.iIdSubfamilia = request.IdSubfamilia.Value;
+				detalleAlta.iIdBms = request.IdBms.Value;
+				detalleAlta.sDescripcion = request.Descripcion;
+				detalleAlta.sRequisicion = request.Requisicion;
+				detalleAlta.sOrdenCompra = request.OrdenCompra;
+				detalleAlta.iIdTipoAdquisicion = request.IdTipoAdquisicion.Value;
+				detalleAlta.sNoSeries = request.NoSeries;
+				detalleAlta.sFolioAnterior = request.FolioAnterior;
+				detalleAlta.iIdEstadoFisico = request.IdEstadoFisico.Value;
+				detalleAlta.dPrecioUnitario = request.PrecioUnitario.Value;
+				detalleAlta.dtFechaAdquisicion = request.FechaCompra.Value;
+				detalleAlta.iAniosVida = request.VidaUtil.Value;
+				detalleAlta.dtFechaInicioUso = request.FechaInicioUso.Value;
+				detalleAlta.dPrecioDesechable = request.PrecioDesechable.Value;
+				detalleAlta.sObservacionBien = request.ObservacionBien;
+				detalleAlta.iIdUbicacion = request.IdUbicacion.Value;
+				detalleAlta.iIdMunicipio = request.IdMunicipio.Value;
+				detalleAlta.sCaracteristicas = request.Caracteristicas;
+				detalleAlta.sResguardantes = request.Responsables;
+				detalleAlta.sObservacionResponsable = request.ObservacionResponsable;
+				detalleAlta.sSustituyeBv = request.SustituyeBV;
+				detalleAlta.sCuentaPorPagar = request.CuentaPorPagar;
+
+				var licitacion = detalleAlta.Licitacion;
+				licitacion.iNumeroLicitacion = request.NoLicitacion;
+				licitacion.dtFecha = request.FechaLicitacion;
+				licitacion.sObservaciones = request.ObservacionLicitacion;
+
+				var datoGeneral = detalleAlta.DatoGeneral;
+				datoGeneral.iIdMarca = request.IdMarca;
+				datoGeneral.iIdColor = request.IdColor;
+				datoGeneral.iIdClaveVehicular = request.IdClave;
+				datoGeneral.iIdLineaVehicular = request.IdLinea;
+				datoGeneral.iIdVersionVehicular = request.IdVersion;
+				datoGeneral.iIdClaseVehicular = request.IdClase;
+				datoGeneral.iIdTipoVehicular = request.IdTipo;
+				datoGeneral.iIdCombustibleVehicular = request.IdCombustible;
+
+				var factura = detalleAlta.Factura;
+				factura.sFolioFactura = request.FolioFactura;
+				factura.dtFecha = request.FechaFactura.Value;
+				factura.iGarantiaDias = request.DiasGarantia;
+
+				var facturaVehicular = factura.DatoVehicular;
+				facturaVehicular.iAnioEmision = request.AnioEmicion;
+				facturaVehicular.sNumeroPlaca = request.NumeroPlaca;
+				facturaVehicular.iNumeroMotor = request.NumeroMotor;
+				facturaVehicular.iAnioModelo = request.AnioModelo;
+				facturaVehicular.nNumeroEconomico = request.NumeroEconomico;
+
+				var result = await _repoDetalleSolicitud.DActualizarAsync(detalleSolicitud);
+				await transaction.CommitAsync();
+				resultado.Success(result, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar actualizar el tramite de alta de un bien vehiculo"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<EntDetalleAltaVehiculoResponse>> BObtenerTramiteAltaAsync(long idDetalleSolicitud)
+		{
+			var nombreMetodo = nameof(BObtenerTramiteAltaAsync);
+			var resultado = new EntityResponse<EntDetalleAltaVehiculoResponse>();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar el tramite de alta");
+			try
+			{
+				var responseDto = await _repoDetalleSolicitud.DObtenerProyeccionElementoAsync<EntDetalleAltaVehiculoResponse>(e => e.iIdDetalleSolicitud == idDetalleSolicitud)
+					?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+				resultado.Success(responseDto, _code);
+			}
+			catch (Exception ex)
+			{
+				resultado = BusExceptionHandler.Handle<EntDetalleAltaVehiculoResponse>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar consultar el tramite de alta"
+				);
+			}
+
+			return resultado;
+		}
+
+		private void BValidarRequestModificacion(EntDetalleModificacionVehiculoRequest request)
+		{
+			var resultadoValidacion = _validatorModificacion.Validate(request);
+			if (resultadoValidacion.IsValid) return;
+			var errores = BusConvertirErrors.UFormatearTexto(resultadoValidacion.Errors);
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, errores);
+		}
+
+		private async Task BValidarRequestModificacionBDAsync(EntDetalleModificacionVehiculoRequest request, EntDetalleModificacion entidad)
+		{
+			var existeSolicitud = await _repoSolicitud.DExisteRegistroAsync(e => e.iIdSolicitud == request.IdSolicitud);
+			var bienPatrimonio = await _repoBienPatrimonio.DObtenerRegistroAsync(e => e.iIdBien == request.IdBienPatrimonio);
+			var existeBienPatrimonio = bienPatrimonio != null;
+			var unidadAdministrativa = await _repoUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
+			var existeUnidadAdministrativa = unidadAdministrativa != null;
+			var existeRequisicion = await _repoTipoAdquisicion.DExisteRegistroAsync(e => e.iIdTipoAdquisicion == request.IdTipoAdquisicion);
+			var existeEstadoFisico = !request.IdMarca.HasValue ||
+				await _repoMarca.DExisteRegistroAsync(e => e.iIdMarca == request.IdMarca);
+			var existeColor = !request.IdColor.HasValue ||
+				await _repoColor.DExisteRegistroAsync(e => e.iIdColor == request.IdColor);
+			var existeUbicacion = await _repoUbicacion.DExisteRegistroAsync(e => e.iIdUbicacion == request.IdUbicacion);
+			var existeMunicipio = await _repoMunicipio.DExisteRegistroAsync(e => e.iIdMunicipio == request.IdMunicipio);
+			var idsCaracteristicas = BusTransformarUtils.UObjetosToIDs(request.Caracteristicas);
+			var existenCaracteristiasBien = await _repoCaracteristicaBien.DExistenRegistrosAsync(idsCaracteristicas, e => e.iIdCaracteristicaBien);
+
+			var errores = new StringBuilder(string.Empty);
+			if (!existeSolicitud) errores.Append("La Solicitud no se encuentra registrada,");
+			if (!existeBienPatrimonio) errores.Append("El Bien Patrimonio no se encuentra registrado,");
+			if (!existeUnidadAdministrativa) errores.Append("El Centro de Costo no se encuentra registrado,");
+			if (!existeRequisicion) errores.Append("La Requisicion no se encuentra registrada,");
+			if (!existeEstadoFisico) errores.Append("El Estado Fisico no se encuentra registrado,");
+			if (!existeColor) errores.Append("El Color no se encuentra registrado,");
+			if (!existeUbicacion) errores.Append("La Ubicacion no se encuentra registrada,");
+			if (!existeMunicipio) errores.Append("El Municipio no se encuentra registrado,");
+			if (!existenCaracteristiasBien) errores.Append("Algunas Caracteristicas no se encuentran registradas,");
+
+			string erroresConverter = errores.ToString();
+			if (string.IsNullOrEmpty(erroresConverter))
+			{
+				await BCompletarDatosTramiteModificacionAsync(request, entidad, bienPatrimonio, unidadAdministrativa);
+				return;
+			};
+			errores.Clear().Append(BusConvertirErrors.URemoverComillaFinal(erroresConverter));
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, errores.ToString());
+
+		}
+
+		private async Task BCambiarEstadoBienes(string folioBienActual, string folioBienNuevo)
+		{
+			var foliosBienesActuales = string.IsNullOrWhiteSpace(folioBienActual)
+				? Array.Empty<string>()
+				: folioBienActual.Split(",", StringSplitOptions.RemoveEmptyEntries);
+
+			var foliosBienesNuevos = string.IsNullOrWhiteSpace(folioBienNuevo)
+				? Array.Empty<string>()
+				: folioBienNuevo.Split(",", StringSplitOptions.RemoveEmptyEntries);
+
+			var todosFolios = foliosBienesActuales.Concat(foliosBienesNuevos).Distinct().ToArray();
+			var todosBienes = await _repoBienPatrimonio.DObtenerTodosAsync(predicado: e => todosFolios.Contains(e.sFolioBien));
+
+			foreach (var bien in todosBienes)
+			{
+				bien.bEnProceso = foliosBienesNuevos.Contains(bien.sFolioBien);
+				await _repoBienPatrimonio.DActualizarAsync(bien);
+			}
+		}
+
+		private async Task BCompletarDatosTramiteModificacionAsync(EntDetalleModificacionVehiculoRequest request, EntDetalleModificacion entidad, EntBienPatrimonio bien, EntUnidadAdministrativa unidadAdministrativa)
+		{
+			await BCambiarEstadoBienes(entidad.sFolioBien, bien.sFolioBien);
+			entidad.sFolioBien = bien.sFolioBien;
+			entidad.iIdFamilia = bien.iIdFamilia;
+			entidad.iIdSubfamilia = bien.iIdSubfamilia;
+			entidad.iIdBms = bien.iIdBms.Value;
+			entidad.iIdUnidadAdministrativa = unidadAdministrativa.iIdUnidadAdministrativa;
+			entidad.iIdCentroCosto = bien.iIdUnidadAdministrativa;
+			entidad.sPartidaEspecifica = bien.sPartidaEspecifica;
+			entidad.sCuentaActivo = bien.sCuentaActivo;
+			entidad.sCuentaActualizacion = bien.sCuentaActualizacion;
+			entidad.sResguardantes = bien.sResguardantes;
+		}
+
+		public async Task<EntityResponse<int>> BCrearTramiteModificacionAsync(EntDetalleModificacionVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BCrearTramiteModificacionAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para crear un tramite de modificacion de un bien vehiculo");
+			try
+			{
+				BValidarRequestModificacion(request);
+				var detalleSolicitud = _mapper.Map<EntDetalleModificacionVehiculoRequest, EntDetalleSolicitud>(request);
+				await BValidarRequestModificacionBDAsync(request, detalleSolicitud.DetalleModificacion);
+
+				var result = await _repoDetalleSolicitud.DCrearAsync(detalleSolicitud);
+				var seguimiento = BGenerarSeguimiento(detalleSolicitud, detalleSolicitud.iIdEtapa);
+				var resultadoSeguimiento = await _repoSeguimiento.DCrearAsync(seguimiento);
+				await transaction.CommitAsync();
+				resultado.Success(result + resultadoSeguimiento, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar crear el tramite de modificacion de un bien vehiculo"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<int>> BActualizarTramiteModificacionAsync(long idDetalleSolicitud, EntDetalleModificacionVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BActualizarTramiteAltaAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para actualizar un tramite de modificacion de un bien vehiculo");
+			try
+			{
+				var includes = new List<Expression<Func<EntDetalleSolicitud, object>>>()
+				{
+					e => e.DetalleModificacion,
+					e => e.DetalleModificacion.Licitacion,
+					e => e.DetalleModificacion.DatoGeneral,
+					e => e.DetalleModificacion.Factura.DatoVehicular
+				};
+				var detalleSolicitud = await _repoDetalleSolicitud.DObtenerRegistroAsync(
+					predicado: e => e.iIdDetalleSolicitud == idDetalleSolicitud,
+					incluir: includes,
+					desactivarTracking: false
+				) ?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+
+				if (detalleSolicitud.iIdEtapa != (long)EnumEtapa.CapturaInicial)
+					throw new BusConflictoException("No se puede modificar el trámite en la etapa actual.");
+
+				var detalleModificacion = detalleSolicitud.DetalleModificacion;
+				BValidarRequestModificacion(request);
+				await BValidarRequestModificacionBDAsync(request, detalleModificacion);
+				if (request.IdMotivoTramite == (long)EnumMotivoTramite.ActualizacionDeDatosDeLaFacturaDeBienesVehiculos)
+				{
+					var factura = detalleModificacion.Factura;
+					factura.sFolioFactura = request.FolioFactura;
+					factura.dtFecha = request.FechaFactura.Value;
+					factura.iGarantiaDias = request.DiasGarantia;
+
+					detalleModificacion.dPrecioUnitario = request.PrecioUnitario.Value;
+					detalleModificacion.iAniosVida = request.VidaUtil.Value;
+					detalleModificacion.dtFechaInicioUso = request.FechaInicioUso.Value;
+					detalleModificacion.dPrecioDesechable = request.PrecioDesechable.Value;
+					detalleModificacion.dtFechaAdquisicion = request.FechaCompra.Value;
+
+				}
+				else if (request.IdMotivoTramite == (long)EnumMotivoTramite.ActualizacionDeDatosDeBienesVehiculos)
+				{
+					detalleModificacion.sDescripcion = request.Descripcion;
+					detalleModificacion.sRequisicion = request.Requisicion;
+					detalleModificacion.sOrdenCompra = request.OrdenCompra;
+					detalleModificacion.iIdTipoAdquisicion = request.IdTipoAdquisicion.Value;
+					detalleModificacion.sNoSeries = request.NoSeries;
+					detalleModificacion.sFolioAnterior = request.FolioAnterior;
+					detalleModificacion.iIdEstadoFisico = request.IdEstadoFisico.Value;
+					detalleModificacion.sObservacionBien = request.ObservacionBien;
+					detalleModificacion.iIdUbicacion = request.IdUbicacion.Value;
+					detalleModificacion.iIdMunicipio = request.IdMunicipio.Value;
+					detalleModificacion.sCaracteristicas = request.Caracteristicas;
+					detalleModificacion.sObservacionResponsable = request.ObservacionResponsable;
+					detalleModificacion.sSustituyeBv = request.SustituyeBV;
+					detalleModificacion.sCuentaPorPagar = request.CuentaPorPagar;
+
+					var licitacion = detalleModificacion.Licitacion;
+					licitacion.iNumeroLicitacion = request.NoLicitacion;
+					licitacion.dtFecha = request.FechaLicitacion;
+					licitacion.sObservaciones = request.ObservacionLicitacion;
+
+					var datoGeneral = detalleModificacion.DatoGeneral;
+					datoGeneral.iIdMarca = request.IdMarca;
+					datoGeneral.iIdColor = request.IdColor;
+					datoGeneral.iIdClaveVehicular = request.IdClave;
+					datoGeneral.iIdLineaVehicular = request.IdLinea;
+					datoGeneral.iIdVersionVehicular = request.IdVersion;
+					datoGeneral.iIdClaseVehicular = request.IdClase;
+					datoGeneral.iIdTipoVehicular = request.IdTipo;
+					datoGeneral.iIdCombustibleVehicular = request.IdCombustible;
+
+					var facturaVehicular = detalleModificacion.Factura.DatoVehicular;
+					facturaVehicular.iAnioEmision = request.AnioEmicion;
+					facturaVehicular.sNumeroPlaca = request.NumeroPlaca;
+					facturaVehicular.iNumeroMotor = request.NumeroMotor;
+					facturaVehicular.iAnioModelo = request.AnioModelo;
+					facturaVehicular.nNumeroEconomico = request.NumeroEconomico;
+				}
+
+				var result = await _repoDetalleSolicitud.DActualizarAsync(detalleSolicitud);
+				await transaction.CommitAsync();
+				resultado.Success(result, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar actualizar el tramite de alta de un bien vehiculo"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<EntDetalleModificacionVehiculoResponse>> BObtenerTramiteModificacionAsync(long idDetalleSolicitud)
+		{
+			var nombreMetodo = nameof(BObtenerTramiteAltaAsync);
+			var resultado = new EntityResponse<EntDetalleModificacionVehiculoResponse>();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar el tramite de modificacion");
+			try
+			{
+				var responseDto = await _repoDetalleSolicitud.DObtenerProyeccionElementoAsync<EntDetalleModificacionVehiculoResponse>(e => e.iIdDetalleSolicitud == idDetalleSolicitud)
+					?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+				resultado.Success(responseDto, _code);
+			}
+			catch (Exception ex)
+			{
+				resultado = BusExceptionHandler.Handle<EntDetalleModificacionVehiculoResponse>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar consultar el tramite de modificacion"
+				);
+			}
+
+			return resultado;
+		}
+
+		private async Task BCompletarDatosTramiteBajaAsync(EntDetalleBajaVehiculoRequest request, EntBaja entidad, EntUnidadAdministrativa unidadAdministrativa)
+		{
+			await BCambiarEstadoBienes(entidad.sFolioBien, request.FolioBien);
+			entidad.iIdUnidadAdministrativa = unidadAdministrativa.iIdUnidadAdministrativa;
+		}
+
+		private void BValidarRequestBaja(EntDetalleBajaVehiculoRequest request)
+		{
+			var resultadoValidacion = _validatorBaja.Validate(request);
+			if (resultadoValidacion.IsValid) return;
+			var errores = BusConvertirErrors.UFormatearTexto(resultadoValidacion.Errors);
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, errores);
+		}
+
+		private async Task BValidarRequestBajaBDAsync(EntDetalleBajaVehiculoRequest request, EntBaja entidad)
+		{
+			var existeSolicitud = await _repoSolicitud.DExisteRegistroAsync(e => e.iIdSolicitud == request.IdSolicitud);
+			var unidadAdministrativa = await _repoUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
+			var existeUnidadAdministrativa = unidadAdministrativa != null;
+
+			var foliosBienes = request.FolioBien.Split(",").ToArray();
+			var bienes = await _repoBienPatrimonio.DObtenerTodosAsync(predicado:
+				e => foliosBienes.Contains(e.sFolioBien));
+			var existenTodosBienes = bienes.Count == foliosBienes.Count();
+
+			var idsDocumentos = request.Documentos?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+				.Select(x => long.Parse(x))
+				.ToList();
+
+			var existenDocumentos = await _repoDocumento.DExistenRegistrosAsync(idsDocumentos, e => e.iIdDocumento);
+
+			var errores = new StringBuilder(string.Empty);
+			if (!existeSolicitud) errores.Append("La Solicitud no se encuentra registrada,");
+			if (!existenTodosBienes) errores.Append("Algunos Bienes no existen en el inventario,");
+			if (!existenDocumentos) errores.Append("Algunos Documentos no existen,");
+			string erroresConverter = errores.ToString();
+			if (string.IsNullOrEmpty(erroresConverter))
+			{
+				await BCompletarDatosTramiteBajaAsync(request, entidad, unidadAdministrativa);
+				return;
+			};
+			errores.Clear().Append(BusConvertirErrors.URemoverComillaFinal(erroresConverter));
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, errores.ToString());
+		}
+
+		public async Task<EntityResponse<int>> BCrearTramiteBajaAsync(EntDetalleBajaVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BCrearTramiteAltaAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para crear un tramite de baja de un bien vehiculo");
+			try
+			{
+				BValidarRequestBaja(request);
+				var detalleSolicitud = _mapper.Map<EntDetalleBajaVehiculoRequest, EntDetalleSolicitud>(request);
+				await BValidarRequestBajaBDAsync(request, detalleSolicitud.DetalleBaja.Baja);
+
+				var result = await _repoDetalleSolicitud.DCrearAsync(detalleSolicitud);
+				var seguimiento = BGenerarSeguimiento(detalleSolicitud, detalleSolicitud.iIdEtapa);
+				var resultadoSeguimiento = await _repoSeguimiento.DCrearAsync(seguimiento);
+				await transaction.CommitAsync();
+				resultado.Success(result + resultadoSeguimiento, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar crear el tramite de creacion de un bien vehiculo"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<int>> BActualizarTramiteBajaAsync(long idDetalleSolicitud, EntDetalleBajaVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BActualizarTramiteBajaAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para actualizar un tramite de baja");
+			try
+			{
+				var includes = new List<Expression<Func<EntDetalleSolicitud, object>>>()
+				{
+					e => e.DetalleBaja.Baja
+				};
+				var detalleSolicitud = await _repoDetalleSolicitud.DObtenerRegistroAsync(
+					predicado: e => e.iIdDetalleSolicitud == idDetalleSolicitud,
+					incluir: includes,
+					desactivarTracking: false
+				) ?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+
+				if (detalleSolicitud.iIdEtapa != (long)EnumEtapa.CapturaInicial)
+					throw new BusConflictoException("No se puede modificar el trámite en la etapa actual.");
+
+				var detalleBaja = detalleSolicitud.DetalleBaja.Baja;
+				BValidarRequestBaja(request);
+				await BValidarRequestBajaBDAsync(request, detalleBaja);
+
+				detalleBaja.iIdEmpleado = request.IdEmpleado;
+				detalleBaja.sFolioBien = request.FolioBien;
+				detalleBaja.sObservaciones = request.Observaciones;
+				detalleBaja.sFolioDictamen = request.FolioDictamen;
+				detalleBaja.dtFehaDocumento = request.FechaDocumento.Value;
+				detalleBaja.sListaDocunetario = request.Documentos;
+				var result = await _repoDetalleSolicitud.DActualizarAsync(detalleSolicitud);
+				await transaction.CommitAsync();
+				resultado.Success(result, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar actualizar el tramite de baja"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<EntDetalleBajaVehiculoResponse>> BObtenerTramiteBajaAsync(long idDetalleSolicitud)
+		{
+			var nombreMetodo = nameof(BObtenerTramiteAltaAsync);
+			var resultado = new EntityResponse<EntDetalleBajaVehiculoResponse>();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar el tramite de baja");
+			try
+			{
+				var responseDto = await _repoDetalleSolicitud.DObtenerProyeccionElementoAsync<EntDetalleBajaVehiculoResponse>(e => e.iIdDetalleSolicitud == idDetalleSolicitud)
+					?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+				resultado.Success(responseDto, _code);
+			}
+			catch (Exception ex)
+			{
+				resultado = BusExceptionHandler.Handle<EntDetalleBajaVehiculoResponse>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar consultar el tramite de baja"
+				);
+			}
+
+			return resultado;
+		}
+
+		private bool BIgualCentroCosto(string version1, string version2)
+		{
+			string majorAndMinor1 = string.Join(".", version1.Split('.')[0], version1.Split('.')[1]);
+			string majorAndMinor2 = string.Join(".", version2.Split('.')[0], version2.Split('.')[1]);
+			return majorAndMinor1 == majorAndMinor2;
+		}
+
+		private async Task BCompletarDatosTramiteMoviemientoAsync(EntDetalleMovimientoVehiculoRequest request, EntDetalleMovimiento entidad, EntUnidadAdministrativa unidadAdministrativa, EntUnidadAdministrativa nuevaUnidadAdministrativa)
+		{
+			await BCambiarEstadoBienes(entidad.sFolioBien, request.FolioBien);
+			if (request.IdMotivoTramite == (long)EnumMotivoTramite.TransferenciasVehiculos ||
+				request.IdMotivoTramite == (long)EnumMotivoTramite.CambioDeCentroDeCostosVehiculos)
+			{
+				entidad.iIdNuevaUnidadAdministrativa = nuevaUnidadAdministrativa.iIdUnidadAdministrativa;
+			}
+			else if (request.IdMotivoTramite == (long)EnumMotivoTramite.CambioDeResguardante)
+			{
+				entidad.sResponsable = request.Responsable;
+			}
+			entidad.iIdUnidadAdministrativa = unidadAdministrativa.iIdUnidadAdministrativa;
+		}
+
+		private void BValidarRequestMovimiento(EntDetalleMovimientoVehiculoRequest request)
+		{
+			var errores = new StringBuilder(string.Empty);
+
+			if (request.IdSolicitud <= 0)
+				errores.Append("La solicitud es requerida,");
+
+			if (request.IdMunicipio <= 0)
+				errores.Append("El municipio es requerido,");
+
+			if (request.IdUbicacion <= 0)
+				errores.Append("La ubicacion es requerida,");
+
+			if (string.IsNullOrEmpty(request.FolioBien))
+				errores.Append("El folio del bien es requerido,");
+
+			if (request.IdMotivoTramite == (long)EnumMotivoTramite.CambioDeCentroDeCostosVehiculos)
+			{
+
+				if (string.IsNullOrEmpty(request.NivelUnidadAdministrativa))
+					errores.Append("El nivel de la nueva unidad administrativa es requerido,");
+
+
+				if (string.IsNullOrEmpty(request.NivelNuevaUnidadAdministrativa))
+					errores.Append("El nivel de la nueva unidad administrativa es requerido,");
+
+
+				if (!BIgualCentroCosto(request.NivelUnidadAdministrativa, request.NivelNuevaUnidadAdministrativa))
+					errores.Append("El nivel de la nueva unidad administrativa debe ser igual al nivel de la unidad administrativa,");
+
+			}
+			else if (request.IdMotivoTramite == (long)EnumMotivoTramite.TransferenciasVehiculos)
+			{
+
+				if (BIgualCentroCosto(request.NivelUnidadAdministrativa, request.NivelNuevaUnidadAdministrativa))
+					errores.Append("El nivel de la nueva unidad administrativa debe ser diferente al nivel de la unidad administrativa para realizar la transferencia,");
+			}
+			else if (request.IdMotivoTramite == (long)EnumMotivoTramite.CambioDeResguardante)
+			{
+
+				if (string.IsNullOrEmpty(request.Responsable))
+					errores.Append("El responsable es requerido,");
+			}
+			if (string.IsNullOrEmpty(errores.ToString())) return;
+			var erroresConverter = BusConvertirErrors.URemoverComillaFinal(errores.ToString());
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, erroresConverter);
+		}
+
+		private async Task BValidarRequestMovimientoBDAsync(EntDetalleMovimientoVehiculoRequest request, EntDetalleMovimiento entidad)
+		{
+			var existeSolicitud = await _repoSolicitud.DExisteRegistroAsync(e => e.iIdSolicitud == request.IdSolicitud);
+			var unidadAdministrativa = await _repoUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
+			var existeUnidadAdministrativa = unidadAdministrativa != null;
+
+			var nuevaUnidadAdministrativa = await _repoUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelNuevaUnidadAdministrativa);
+			var existeNuevaUnidadAdministrativa = request.IdMotivoTramite == (long)EnumMotivoTramite.CambioDeCentroDeCostosVehiculos || request.IdMotivoTramite == (long)EnumMotivoTramite.TransferenciasVehiculos ? nuevaUnidadAdministrativa != null : true;
+
+			var existeUbicacion = await _repoUbicacion.DExisteRegistroAsync(e => e.iIdUbicacion == request.IdUbicacion);
+			var existeMunicipio = await _repoMunicipio.DExisteRegistroAsync(e => e.iIdMunicipio == request.IdMunicipio);
+
+			var foliosBienes = request.FolioBien.Split(",").ToArray();
+			var bienes = await _repoBienPatrimonio.DObtenerTodosAsync(predicado:
+				e => foliosBienes.Contains(e.sFolioBien));
+			var existenTodosBienes = bienes.Count == foliosBienes.Count();
+
+			var idsResponsables = request.IdMotivoTramite == (long)EnumMotivoTramite.CambioDeResguardosDeMobiliarioYEquipo
+				? request.Responsable.Split(',', StringSplitOptions.RemoveEmptyEntries)
+							.Select(x => long.Parse(x))
+							.ToList()
+				: new List<long>();
+			var existenResguardantes = await _repoResguardante.DExistenRegistrosAsync(idsResponsables, e => e.iIdResguardante);
+
+			var errores = new StringBuilder(string.Empty);
+			if (!existeSolicitud) errores.Append("La Solicitud no se encuentra registrada,");
+			if (!existeUbicacion) errores.Append("La ubicacion no existe,");
+			if (!existeMunicipio) errores.Append("El municipio no existe,");
+			if (!existenTodosBienes) errores.Append("Algunos Bienes no existen en el inventario,");
+			if (!existeNuevaUnidadAdministrativa) errores.Append("La nueva unidad administrativa no existe,");
+			if (!existeUnidadAdministrativa) errores.Append("La unidad administrativa no existe,");
+			if (!existenResguardantes) errores.Append("Algunos Documentos no existen,");
+
+			string erroresConverter = errores.ToString();
+			if (string.IsNullOrEmpty(erroresConverter))
+			{
+				await BCompletarDatosTramiteMoviemientoAsync(request, entidad, unidadAdministrativa, nuevaUnidadAdministrativa);
+				return;
+			};
+			errores.Clear().Append(BusConvertirErrors.URemoverComillaFinal(erroresConverter));
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, errores.ToString());
+
+		}
+
+		public async Task<EntityResponse<int>> BCrearTramiteMovimientoAsync(EntDetalleMovimientoVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BCrearTramiteMovimientoAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para crear un tramite de movimiento de un bien");
+			try
+			{
+				BValidarRequestMovimiento(request);
+				var detalleSolicitud = _mapper.Map<EntDetalleMovimientoVehiculoRequest, EntDetalleSolicitud>(request);
+				await BValidarRequestMovimientoBDAsync(request, detalleSolicitud.DetalleMovimiento);
+
+				var result = await _repoDetalleSolicitud.DCrearAsync(detalleSolicitud);
+				var seguimiento = BGenerarSeguimiento(detalleSolicitud, detalleSolicitud.iIdEtapa);
+				var resultadoSeguimiento = await _repoSeguimiento.DCrearAsync(seguimiento);
+				await transaction.CommitAsync();
+				resultado.Success(result + resultadoSeguimiento, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar crear el tramite de movimiento de un bien"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<int>> BActualizarTramiteMovimientoAsync(long idDetalleSolicitud, EntDetalleMovimientoVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BActualizarTramiteMovimientoAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para actualizar un tramite de movimiento de un bien");
+			try
+			{
+				var includes = new List<Expression<Func<EntDetalleSolicitud, object>>>()
+				{
+					e => e.DetalleMovimiento
+				};
+				var detalleSolicitud = await _repoDetalleSolicitud.DObtenerRegistroAsync(
+					predicado: e => e.iIdDetalleSolicitud == idDetalleSolicitud,
+					incluir: includes,
+					desactivarTracking: false
+				) ?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+
+				if (detalleSolicitud.iIdEtapa != (long)EnumEtapa.CapturaInicial)
+					throw new BusConflictoException("No se puede modificar el trámite en la etapa actual.");
+
+				var detalle = detalleSolicitud.DetalleMovimiento;
+				BValidarRequestMovimiento(request);
+				await BValidarRequestMovimientoBDAsync(request, detalle);
+
+				detalle.iIdMunicipio = request.IdMunicipio.Value;
+				detalle.iIdUbicacion = request.IdUbicacion.Value;
+				detalle.sFolioBien = request.FolioBien;
+
+				var result = await _repoDetalleSolicitud.DActualizarAsync(detalleSolicitud);
+				await transaction.CommitAsync();
+				resultado.Success(result, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar actualizar el tramite de movimiento de un bien"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<EntDetalleMovimientoVehiculoResponse>> BObtenerTramiteMovimientoAsync(long idDetalleSolicitud)
+		{
+			var nombreMetodo = nameof(BObtenerTramiteMovimientoAsync);
+			var resultado = new EntityResponse<EntDetalleMovimientoVehiculoResponse>();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar el tramite de movimeinto");
+			try
+			{
+				var responseDto = await _repoDetalleSolicitud.DObtenerProyeccionElementoAsync<EntDetalleMovimientoVehiculoResponse>(e => e.iIdDetalleSolicitud == idDetalleSolicitud)
+					?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+				resultado.Success(responseDto, _code);
+			}
+			catch (Exception ex)
+			{
+				resultado = BusExceptionHandler.Handle<EntDetalleMovimientoVehiculoResponse>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar consultar el tramite de movimiento"
+				);
+			}
+
+			return resultado;
+		}
+
+		private async Task BCompletarDatosTramiteDesincorporacionAsync(EntDetalleDesincorporacionVehiculoRequest request, EntDetalleDesincorporacion entidad, EntUnidadAdministrativa unidadAdministrativa)
+		{
+			await BCambiarEstadoBienes(entidad.sFolioBien, request.FolioBien);
+			entidad.iIdUnidadAdministrativa = unidadAdministrativa.iIdUnidadAdministrativa;
+		}
+
+		private void BValidarRequestDesincorporacion(EntDetalleDesincorporacionVehiculoRequest request)
+		{
+			var resultadoValidacion = _validatorDesincorporacion.Validate(request);
+			if (resultadoValidacion.IsValid) return;
+			var errores = BusConvertirErrors.UFormatearTexto(resultadoValidacion.Errors);
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, errores);
+		}
+
+		private async Task BValidarRequestDesincorporacionBDAsync(EntDetalleDesincorporacionVehiculoRequest request, EntDetalleDesincorporacion entidad)
+		{
+			var existeSolicitud = await _repoSolicitud.DExisteRegistroAsync(e => e.iIdSolicitud == request.IdSolicitud);
+			var existeEmpleado = await _repoEmpleado.DExisteRegistroAsync(e => e.iIdEmpleado == request.IdEmpleado);
+
+			var unidadAdministrativa = await _repoUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
+			var existeUnidadAdministrativa = unidadAdministrativa != null;
+
+			var foliosBienes = request.FolioBien.Split(",").ToArray();
+			var bienes = await _repoBienPatrimonio.DObtenerTodosAsync(predicado:
+				e => foliosBienes.Contains(e.sFolioBien));
+			var existenTodosBienes = bienes.Count == foliosBienes.Count();
+
+			var errores = new StringBuilder(string.Empty);
+			if (!existeSolicitud) errores.Append("La Solicitud no se encuentra registrada,");
+			if (!existeEmpleado) errores.Append("El empleado no existe,");
+			if (!existenTodosBienes) errores.Append("Algunos Bienes no existen en el inventario,");
+			if (!existeUnidadAdministrativa) errores.Append("La unidad administrativa no existe,");
+
+			string erroresConverter = errores.ToString();
+			if (string.IsNullOrEmpty(erroresConverter))
+			{
+				await BCompletarDatosTramiteDesincorporacionAsync(request, entidad, unidadAdministrativa);
+				return;
+			};
+			errores.Clear().Append(BusConvertirErrors.URemoverComillaFinal(erroresConverter));
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, errores.ToString());
+
+		}
+
+
+		public async Task<EntityResponse<int>> BCrearTramiteDesincorporacionAsync(EntDetalleDesincorporacionVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BCrearTramiteMovimientoAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para crear un tramite de desincorporacion");
+			try
+			{
+				BValidarRequestDesincorporacion(request);
+				var detalleSolicitud = _mapper.Map<EntDetalleDesincorporacionVehiculoRequest, EntDetalleSolicitud>(request);
+				await BValidarRequestDesincorporacionBDAsync(request, detalleSolicitud.DetalleDesincorporacion);
+
+				var result = await _repoDetalleSolicitud.DCrearAsync(detalleSolicitud);
+				var seguimiento = BGenerarSeguimiento(detalleSolicitud, detalleSolicitud.iIdEtapa);
+				var resultadoSeguimiento = await _repoSeguimiento.DCrearAsync(seguimiento);
+				await transaction.CommitAsync();
+				resultado.Success(result + resultadoSeguimiento, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar crear el tramite de desincorporacion"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<int>> BActualizarTramiteDesincorporacionAsync(long idDetalleSolicitud, EntDetalleDesincorporacionVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BActualizarTramiteDesincorporacionAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para actualizar un tramite de desincorporacion");
+			try
+			{
+				var includes = new List<Expression<Func<EntDetalleSolicitud, object>>>()
+				{
+					e => e.DetalleDesincorporacion
+				};
+				var detalleSolicitud = await _repoDetalleSolicitud.DObtenerRegistroAsync(
+					predicado: e => e.iIdDetalleSolicitud == idDetalleSolicitud,
+					incluir: includes,
+					desactivarTracking: false
+				) ?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+
+				if (detalleSolicitud.iIdEtapa != (long)EnumEtapa.CapturaInicial)
+					throw new BusConflictoException("No se puede modificar el trámite en la etapa actual.");
+
+				var detalle = detalleSolicitud.DetalleDesincorporacion;
+				BValidarRequestDesincorporacion(request);
+				await BValidarRequestDesincorporacionBDAsync(request, detalle);
+
+				detalle.iIdEmpleado = request.IdEmpleado;
+				detalle.sFolioBien = request.FolioBien;
+				detalle.sObservaciones = request.Observaciones;
+				detalle.dtFechaPublicacion = request.FechaPublicacion.Value;
+				detalle.sNumeroPublicacion = request.NumeroPublicacion;
+				detalle.sDescripcionDesincorporacion = request.DescripcionDesincorporacion;
+
+				var result = await _repoDetalleSolicitud.DActualizarAsync(detalleSolicitud);
+				await transaction.CommitAsync();
+				resultado.Success(result, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar actualizar el tramite de desincorporacion"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<EntDetalleDesincorporacionVehiculoResponse>> BObtenerTramiteDesincorporacionAsync(long idDetalleSolicitud)
+		{
+			var nombreMetodo = nameof(BObtenerTramiteDesincorporacionAsync);
+			var resultado = new EntityResponse<EntDetalleDesincorporacionVehiculoResponse>();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar el tramite de desincorporacion");
+			try
+			{
+				var responseDto = await _repoDetalleSolicitud.DObtenerProyeccionElementoAsync<EntDetalleDesincorporacionVehiculoResponse>(e => e.iIdDetalleSolicitud == idDetalleSolicitud)
+					?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+				resultado.Success(responseDto, _code);
+			}
+			catch (Exception ex)
+			{
+				resultado = BusExceptionHandler.Handle<EntDetalleDesincorporacionVehiculoResponse>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar consultar el tramite de desincorporacion"
+				);
+			}
+
+			return resultado;
+		}
+
+		private async Task BCompletarDatosTramiteDestinoFinalAsync(EntDetalleDestinoFinalVehiculoRequest request, EntDetalleDestinoFinal entidad, EntUnidadAdministrativa unidadAdministrativa)
+		{
+			await BCambiarEstadoBienes(entidad.sFolioBien, request.FolioBien);
+			entidad.iIdEmpleado = request.IdEmpleado;
+			entidad.iIdUnidadAdministrativa = unidadAdministrativa.iIdUnidadAdministrativa;
+			entidad.sFolioBien = request.FolioBien;
+		}
+
+		private void BValidarRequestDestinoFinal(EntDetalleDestinoFinalVehiculoRequest request)
+		{
+			var errores = new StringBuilder(string.Empty);
+
+			if (request.IdMotivoTramite == (long)EnumMotivoTramite.EnajenacionVehiculos)
+			{
+				if (string.IsNullOrEmpty(request.AvaluoEnajenacion))
+					errores.Append("El avaluo de enajenacion es requerido,");
+
+				if (string.IsNullOrEmpty(request.DescripcionEnajenacion))
+					errores.Append("La descripcion de enajenacion es requerida,");
+
+				if (!request.FechaEnajenacion.HasValue)
+					errores.Append("La fecha de enajenacion es requerida,");
+
+				if (string.IsNullOrEmpty(request.FolioEnajenacion))
+					errores.Append("El folio de enajenacion es requerido,");
+
+				if (!request.ImporteAvaluoEnajenacion.HasValue)
+					errores.Append("El importe del avaluo de enajenacion es requerido,");
+
+				if (request.ImporteAvaluoEnajenacion.HasValue && request.ImporteAvaluoEnajenacion.Value <= 0)
+					errores.Append("El importe del avaluo de ser mayor a 0,");
+			}
+			else if (request.IdMotivoTramite == (long)EnumMotivoTramite.DestruccionVehiculos)
+			{
+				if (string.IsNullOrEmpty(request.DescripcionDestruccion))
+					errores.Append("La descripcion de destruccion es requerida,");
+
+				if (string.IsNullOrEmpty(request.FolioDestruccion))
+					errores.Append("El folio de destruccion es requerido,");
+
+				if (!request.FechaDestruccion.HasValue)
+					errores.Append("La fecha de destruccion es requerida, ");
+			}
+			if (string.IsNullOrEmpty(errores.ToString())) return;
+			var erroresConverter = BusConvertirErrors.URemoverComillaFinal(errores.ToString());
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, erroresConverter);
+		}
+
+		private async Task BValidarRequestDestinoFinalBDAsync(EntDetalleDestinoFinalVehiculoRequest request, EntDetalleDestinoFinal entidad)
+		{
+			var existeSolicitud = await _repoSolicitud.DExisteRegistroAsync(e => e.iIdSolicitud == request.IdSolicitud);
+			var existeEmpleado = await _repoEmpleado.DExisteRegistroAsync(e => e.iIdEmpleado == request.IdEmpleado);
+
+			var unidadAdministrativa = await _repoUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
+			var existeUnidadAdministrativa = unidadAdministrativa != null;
+
+			var foliosBienes = request.FolioBien.Split(",").ToArray();
+			var bienes = await _repoBienPatrimonio.DObtenerTodosAsync(predicado:
+				e => foliosBienes.Contains(e.sFolioBien));
+			var existenTodosBienes = bienes.Count == foliosBienes.Count();
+
+			var errores = new StringBuilder(string.Empty);
+			if (!existeSolicitud) errores.Append("La Solicitud no se encuentra registrada,");
+			if (!existeEmpleado) errores.Append("El empleado no se encuentra registrado,");
+			if (!existenTodosBienes) errores.Append("Algunos Bienes no existen en el inventario,");
+			if (!existeUnidadAdministrativa) errores.Append("La unidad administrativa no existe,");
+
+			string erroresConverter = errores.ToString();
+			if (string.IsNullOrEmpty(erroresConverter))
+			{
+				await BCompletarDatosTramiteDestinoFinalAsync(request, entidad, unidadAdministrativa);
+				return;
+			};
+			errores.Clear().Append(BusConvertirErrors.URemoverComillaFinal(erroresConverter));
+			throw new BusRequestException(EntMensajeConstant.SolicitudIncorrecta, errores.ToString());
+		}
+
+
+		public async Task<EntityResponse<int>> BCrearTramiteDestinoFinalAsync(EntDetalleDestinoFinalVehiculoRequest request)
+		{
+
+			var nombreMetodo = nameof(BCrearTramiteDestinoFinalAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para crear un tramite de destino final");
+			try
+			{
+				BValidarRequestDestinoFinal(request);
+				var detalleSolicitud = _mapper.Map<EntDetalleDestinoFinalVehiculoRequest, EntDetalleSolicitud>(request);
+				await BValidarRequestDestinoFinalBDAsync(request, detalleSolicitud.DetalleDestinoFinal);
+				if (request.IdMotivoTramite == (long)EnumMotivoTramite.EnajenacionVehiculos)
+				{
+					detalleSolicitud.DetalleDestinoFinal.DetalleDestruccion = null;
+				}
+				else if (request.IdMotivoTramite == (long)EnumMotivoTramite.DestruccionVehiculos)
+				{
+					detalleSolicitud.DetalleDestinoFinal.DetalleEnagenacion = null;
+				}
+
+				var result = await _repoDetalleSolicitud.DCrearAsync(detalleSolicitud);
+				var seguimiento = BGenerarSeguimiento(detalleSolicitud, detalleSolicitud.iIdEtapa);
+				var resultadoSeguimiento = await _repoSeguimiento.DCrearAsync(seguimiento);
+				await transaction.CommitAsync();
+				resultado.Success(result + resultadoSeguimiento, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar crear el tramite de destino final de un bien mueble"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<int>> BActualizarTramiteDestinoFinalAsync(long idDetalleSolicitud, EntDetalleDestinoFinalVehiculoRequest request)
+		{
+			var nombreMetodo = nameof(BActualizarTramiteDesincorporacionAsync);
+			var resultado = new EntityResponse<int>();
+			await using var transaction = await _repoDetalleSolicitud.DBeginTransactionAsync();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para actualizar un tramite de destino final");
+			try
+			{
+				var includes = new List<Expression<Func<EntDetalleSolicitud, object>>>()
+				{
+					e => e.DetalleDestinoFinal.DetalleEnagenacion,
+					e => e.DetalleDestinoFinal.DetalleDestruccion,
+				};
+				var detalleSolicitud = await _repoDetalleSolicitud.DObtenerRegistroAsync(
+					predicado: e => e.iIdDetalleSolicitud == idDetalleSolicitud,
+					incluir: includes,
+					desactivarTracking: false
+				) ?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+
+				if (detalleSolicitud.iIdEtapa != (long)EnumEtapa.CapturaInicial)
+					throw new BusConflictoException("No se puede modificar el trámite en la etapa actual.");
+
+				var detalle = detalleSolicitud.DetalleDestinoFinal;
+				BValidarRequestDestinoFinal(request);
+				await BValidarRequestDestinoFinalBDAsync(request, detalle);
+
+				if (request.IdMotivoTramite == (long)EnumMotivoTramite.EnajenacionVehiculos)
+				{
+					var enajenacion = detalle.DetalleEnagenacion;
+					enajenacion.dtFecha = request.FechaEnajenacion.Value;
+					enajenacion.sDescripcion = request.DescripcionEnajenacion;
+					enajenacion.sFolio = request.FolioEnajenacion;
+					enajenacion.dImporteAvaluo = request.ImporteAvaluoEnajenacion.Value;
+					enajenacion.sAvaluo = request.AvaluoEnajenacion;
+				}
+				else if (request.IdMotivoTramite == (long)EnumMotivoTramite.DestruccionVehiculos)
+				{
+					var destruccion = detalle.DetalleDestruccion;
+					destruccion.dtFecha = request.FechaDestruccion.Value;
+					destruccion.sDescripcion = request.DescripcionDestruccion;
+					destruccion.sFolio = request.FolioDestruccion;
+				}
+
+				var result = await _repoDetalleSolicitud.DActualizarAsync(detalleSolicitud);
+				await transaction.CommitAsync();
+				resultado.Success(result, _code);
+			}
+			catch (Exception ex)
+			{
+				await transaction.RollbackAsync();
+				resultado = BusExceptionHandler.Handle<int>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar actualizar el tramite de destino final"
+				);
+			}
+
+			return resultado;
+		}
+
+		public async Task<EntityResponse<EntDetalleDestinoFinalVehiculoResponse>> BObtenerTramiteDestinoFinalAsync(long idDetalleSolicitud)
+		{
+			var nombreMetodo = nameof(BObtenerTramiteMovimientoAsync);
+			var resultado = new EntityResponse<EntDetalleDestinoFinalVehiculoResponse>();
+
+			_logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar el tramite de destino final");
+			try
+			{
+				var responseDto = await _repoDetalleSolicitud.DObtenerProyeccionElementoAsync<EntDetalleDestinoFinalVehiculoResponse>(e => e.iIdDetalleSolicitud == idDetalleSolicitud)
+					?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+				resultado.Success(responseDto, _code);
+			}
+			catch (Exception ex)
+			{
+				resultado = BusExceptionHandler.Handle<EntDetalleDestinoFinalVehiculoResponse>(
+					_logger,
+					ex,
+					_codeError,
+					nombreMetodo,
+					"Ocurrio un error al intentar consultar el tramite de destino final"
+				);
+			}
+
+			return resultado;
+		}
+	}
+}

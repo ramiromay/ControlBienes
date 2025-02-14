@@ -35,7 +35,7 @@ namespace ControlBienes.Entities.Seguridad.Empleado
 
 		public string Telefono { get; set; } = string.Empty;
 
-		public List<long> Permisos { get; set; } = new List<long>();
+		public List<long>? Permisos { get; set; } = new List<long>();
 
 		public long? IdRol { get; set; } = 0;
 

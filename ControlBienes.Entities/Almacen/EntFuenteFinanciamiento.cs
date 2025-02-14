@@ -1,4 +1,5 @@
-﻿using ControlBienes.Entities.Genericos;
+﻿using ControlBienes.Entities.Almacen.Movimiento;
+using ControlBienes.Entities.Genericos;
 using System;
 using System.Collections.Generic;
 

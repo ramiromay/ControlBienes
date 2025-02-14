@@ -20,7 +20,7 @@ public partial class EntDatoRegistral : EntRegistroGenerico
 
     public double dSuperficie { get; set; }
 
-    public double dValorTerreno { get; set; }
+    public decimal dValorTerreno { get; set; }
 
     public string sNumeroExterior { get; set; }
 
@@ -34,9 +34,9 @@ public partial class EntDatoRegistral : EntRegistroGenerico
 
     public string sTablaje { get; set; }
 
-    public double dValorConstruccion { get; set; }
+    public decimal dValorConstruccion { get; set; }
 
-    public double dValorInicial { get; set; }
+    public decimal dValorInicial { get; set; }
 
     public decimal? nCodigoPostal { get; set; }
 

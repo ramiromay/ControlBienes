@@ -1,4 +1,5 @@
-﻿using ControlBienes.Entities.Almacen;
+﻿using ControlBienes.Entities.Almacen.Bien;
+using ControlBienes.Entities.Almacen.MovimientoBien;
 using ControlBienes.Entities.Catalogos.Familia;
 using ControlBienes.Entities.Catalogos.Subfamilia;
 using ControlBienes.Entities.Genericos;
@@ -20,7 +21,7 @@ public partial class EntBms : EntRegistroGenerico
 
     public long iIdSubfamilia { get; set; }
 
-    public int iCantidad { get; set; }
+    public int? iCantidad { get; set; }
 
     public string sUnidadMedida { get; set; }
 
@@ -28,11 +29,15 @@ public partial class EntBms : EntRegistroGenerico
 
     public decimal? nCodigoArmonizado { get; set; }
 
+    public string sPartidas { get; set; }
+
     public bool bActivo { get; set; }
 
-    public virtual ICollection<EntrBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntrBienPatrimonio>();
+    public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
 
-    public virtual ICollection<EntDetalleAlta> DetallesAlta { get; set; } = new List<EntDetalleAlta>();
+	public virtual ICollection<EntBienAlmacen> BienesAlmacen { get; set; } = new List<EntBienAlmacen>();
+
+	public virtual ICollection<EntDetalleAlta> DetallesAlta { get; set; } = new List<EntDetalleAlta>();
 
     public virtual ICollection<EntDetalleModificacion> DetallesModificaciones { get; set; } = new List<EntDetalleModificacion>();
 

@@ -13,9 +13,17 @@ public partial class EntDepreciacion
 
     public decimal dDepreciaionAcumulada { get; set; }
 
-    public double dValorLibros { get; set; }
+    public decimal dValorLibros { get; set; }
 
     public decimal dDepreciacionFiscal { get; set; }
 
+    public decimal dDepreciacion { get; set; }
+
     public DateTime dtFecha { get; set; }
+
+    public bool bActivo { get; set; }
+
+    public decimal dValorHistorico { get; set; }
+
+    public int iAniosVida {  get; set; }
 }

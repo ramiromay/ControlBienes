@@ -10,6 +10,6 @@ namespace ControlBienes.Business.Contrats.General
 {
     public interface IBusUnidadAdministrativa
     {
-        public Task<EntityResponse<IEnumerable<EntUnidadAdministrativaResponse>>> BObtenerTodosUnidadesAdministrativasAsync();
+        public Task<EntityResponse<IEnumerable<EntUnidadAdministrativaResponse>>> BObtenerTodosUnidadesAdministrativasAsync(int desdeNivel, int hastaNivel);
     }
 }

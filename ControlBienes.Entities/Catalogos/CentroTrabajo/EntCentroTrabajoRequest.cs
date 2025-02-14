@@ -7,6 +7,6 @@
         public string Nombre { get; set; } = null;
         public string Direccion { get; set; } = null;
         public long? IdMunicipio { get; set; } = null;
-        public long? IdUnidadAdministrativa { get; set; } = null;
+        public string NivelUnidadAdministrativa { get; set; } = string.Empty;
     }
 }

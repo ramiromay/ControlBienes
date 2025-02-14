@@ -24,7 +24,7 @@ public partial class EntDatoInmueble
 
     public long iIdTipoDomninio { get; set; }
 
-    public long iIdEstadoGeneral { get; set; }
+    public long? iIdEstadoGeneral { get; set; }
 
     public long iIdTipoAfectacion { get; set; }
 
@@ -32,11 +32,22 @@ public partial class EntDatoInmueble
 
     public string sPublicacion { get; set; }
 
-    public DateTime dtFechaAltaSistema { get; set; }
+	public string sEscrituraTitulo { get; set; }
+
+	public string sExpediente{ get; set; }
+
+    public decimal? dValorHistorico { get; set; }
+
+    public decimal? dValorLibros { get; set; }
+
+    public decimal? dDepreciacion { get; set; }
+
+
+	public DateTime dtFechaAltaSistema { get; set; }
 
     public long iIdDatoRegistral { get; set; }
 
-    public virtual ICollection<EntrBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntrBienPatrimonio>();
+    public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
 
     public virtual ICollection<EntDetalleAlta> DetallesAlta { get; set; } = new List<EntDetalleAlta>();
 

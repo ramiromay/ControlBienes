@@ -1,9 +1,12 @@
-﻿using ControlBienes.Entities.General.Periodo;
+﻿using ControlBienes.Entities.Catalogos.TipoBien;
+using ControlBienes.Entities.General.Periodo;
 using ControlBienes.Entities.General.UnidadAdministrativa;
 using ControlBienes.Entities.Genericos;
 using ControlBienes.Entities.Patrimonio.Afectacion;
 using ControlBienes.Entities.Patrimonio.Alta;
 using ControlBienes.Entities.Patrimonio.Baja;
+using ControlBienes.Entities.Patrimonio.Bien;
+using ControlBienes.Entities.Patrimonio.DetalleSolicitud;
 using ControlBienes.Entities.Patrimonio.Etapa;
 using ControlBienes.Entities.Patrimonio.Historial;
 using ControlBienes.Entities.Patrimonio.Modificacion;
@@ -31,6 +34,8 @@ public partial class EntSolicitud : EntRegistroGenerico
 
     public long iIdAfectacion { get; set; }
 
+    public long iIdTipoBien { get; set; }
+
     public DateTime dtFechaAfectacion { get; set; }
 
     public string sDocumentoReferencia { get; set; }
@@ -47,7 +52,9 @@ public partial class EntSolicitud : EntRegistroGenerico
 
     public virtual ICollection<EntHistorial> Historiales { get; set; } = new List<EntHistorial>();
 
-    public virtual EntAfectacion Afectacion { get; set; }
+	public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
+
+	public virtual EntAfectacion Afectacion { get; set; }
 
     public virtual EntEmpleado Empleado { get; set; }
 
@@ -60,4 +67,7 @@ public partial class EntSolicitud : EntRegistroGenerico
     public virtual EntTipoTramite TiposTramite { get; set; }
 
     public virtual EntUnidadAdministrativa UnidadAdministrativa { get; set; }
+
+    public virtual EntTipoBien TipoBien { get; set; }
+
 }

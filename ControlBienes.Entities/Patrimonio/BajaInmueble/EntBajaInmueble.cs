@@ -22,7 +22,7 @@ public partial class EntBajaInmueble
 
     public DateTime dtFechaBajaSistema { get; set; }
 
-    public double dValorBaja { get; set; }
+    public decimal dValorBaja { get; set; }
 
     public string sEscrituraTitulo { get; set; }
 
@@ -42,11 +42,11 @@ public partial class EntBajaInmueble
 
     public string sJustificacion { get; set; }
 
-    public long iIdUsoInmueble { get; set; }
+    public long? iIdUsoInmueble { get; set; }
 
-    public long iIdTipoInmueble { get; set; }
+    public long? iIdTipoInmueble { get; set; }
 
-    public long iIdTipoDomninio { get; set; }
+    public long? iIdTipoDomninio { get; set; }
 
     public string sObservacion { get; set; }
 
@@ -72,7 +72,7 @@ public partial class EntBajaInmueble
 
     public virtual ICollection<EntDetalleBaja> DetallesBajas { get; set; } = new List<EntDetalleBaja>();
 
-    public virtual EntrBienPatrimonio Bien { get; set; }
+    public virtual EntBienPatrimonio Bien { get; set; }
 
     public virtual EntTipoDominio TiposDominio { get; set; }
 

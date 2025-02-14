@@ -11,7 +11,7 @@ namespace ControlBienes.Business.Exceptions
 	public static class BusExceptionHandler
 	{
 
-		public static EntityResponse<T> Handle<T>(ILogger _logger, Exception ex, EnumCodigoOperacion code, string nombreMetodo, string mensaje)
+		public static EntityResponse<T> Handle<T>(ILogger _logger, Exception ex, EnumCodigoOperacion? code, string nombreMetodo, string mensaje)
 		{
 			var resultado = new EntityResponse<T>();
 			switch (ex)
@@ -23,6 +23,10 @@ namespace ControlBienes.Business.Exceptions
 				case BusRequestException busRequestException:
 					resultado.BadRequest(busRequestException.Errores, code);
 					_logger.LogError($"{(long)code} Error en {nombreMetodo}: {busRequestException.Message} ({busRequestException.Errores})");
+					break;
+				case BusConflictoException busConflictoException:
+					resultado.Conflict(busConflictoException.Message, code);
+					_logger.LogError($"{(long)code} Error en {nombreMetodo}: {busConflictoException.Message}");
 					break;
 				case SqlException sqlException:
 					resultado.GatewayTimeout(EntMensajeConstant.ErrorTransaccionBD, code);

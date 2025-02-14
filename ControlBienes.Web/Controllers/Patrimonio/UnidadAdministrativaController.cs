@@ -23,10 +23,10 @@ namespace ControlBienes.Web.Controllers.Patrimonio
 		[ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(EntityResponse<EntUnidadAdministrativaResponse>))]
 		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(EntityResponse<EntUnidadAdministrativaResponse>))]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(EntityResponse<EntUnidadAdministrativaResponse>))]
-		public async Task<EntityResponse<IEnumerable<EntUnidadAdministrativaResponse>>> CObtenerTodosColores()
+		public async Task<EntityResponse<IEnumerable<EntUnidadAdministrativaResponse>>> CObtenerTodosColores([FromQuery] int desdeNivel = 1, [FromQuery] int hastaNivel = 3)
 		{
 
-			return await _servicio.BObtenerTodosUnidadesAdministrativasAsync();
+			return await _servicio.BObtenerTodosUnidadesAdministrativasAsync(desdeNivel, hastaNivel);
 		}
 	}
 }

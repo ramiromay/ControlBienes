@@ -1,6 +1,7 @@
 ﻿using ControlBienes.Business.Contrats.Catalogs;
 using ControlBienes.Business.Genericos;
 using ControlBienes.Entities.Catalogos.CaracteristicaBien;
+using ControlBienes.Entities.Seguridad.Permiso;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ControlBienes.Web.Controllers.Catalogos
@@ -17,6 +18,7 @@ namespace ControlBienes.Web.Controllers.Catalogos
 		}
 
 		[HttpGet]
+		[AutorizacionSICBA(EnumPermiso.AccesoCatálogoCaracterísticasBienes)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EntityResponse<EntCaracteristicaBienResponse>))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(EntityResponse<EntCaracteristicaBienResponse>))]
 		[ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(EntityResponse<EntCaracteristicaBienResponse>))]

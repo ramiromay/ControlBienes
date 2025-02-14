@@ -8,8 +8,12 @@ using ControlBienes.Entities.General.BMS;
 using ControlBienes.Entities.General.Municipio;
 using ControlBienes.Entities.General.UnidadAdministrativa;
 using ControlBienes.Entities.Patrimonio.Bien;
+using ControlBienes.Entities.Patrimonio.DatoGeneral;
 using ControlBienes.Entities.Patrimonio.DatoInmueble;
+using ControlBienes.Entities.Patrimonio.DetalleSolicitud;
 using ControlBienes.Entities.Patrimonio.Etapa;
+using ControlBienes.Entities.Patrimonio.Factura;
+using ControlBienes.Entities.Patrimonio.Licitacion;
 using ControlBienes.Entities.Patrimonio.Solicitud;
 using System;
 using System.Collections.Generic;
@@ -24,9 +28,7 @@ public partial class EntDetalleModificacion
 
     public long iIdSolicitud { get; set; }
 
-    public long iIdEtapa { get; set; }
-
-    public int iNumeroBienes { get; set; }
+    public int? iNumeroBienes { get; set; }
 
     public long iIdTipoBien { get; set; }
 
@@ -36,7 +38,7 @@ public partial class EntDetalleModificacion
 
     public long iIdSubfamilia { get; set; }
 
-    public long iIdBms { get; set; }
+    public long? iIdBms { get; set; }
 
     public string sReferenciaConac { get; set; }
 
@@ -46,7 +48,9 @@ public partial class EntDetalleModificacion
 
     public long iIdUnidadAdministrativa { get; set; }
 
-    public string sRequisicion { get; set; }
+	public long? iIdCentroCosto { get; set; }
+
+	public string sRequisicion { get; set; }
 
     public string sOrdenCompra { get; set; }
 
@@ -58,7 +62,7 @@ public partial class EntDetalleModificacion
 
     public string sSustituyeBv { get; set; }
 
-    public long iIdUbicacion { get; set; }
+    public long? iIdUbicacion { get; set; }
 
     public string sNoSeries { get; set; }
 
@@ -66,7 +70,7 @@ public partial class EntDetalleModificacion
 
     public long iIdEstadoFisico { get; set; }
 
-    public double dPrecioUnitario { get; set; }
+    public decimal dPrecioUnitario { get; set; }
 
     public int iAniosVida { get; set; }
 
@@ -74,9 +78,9 @@ public partial class EntDetalleModificacion
 
     public DateTime dtFechaAdquisicion { get; set; }
 
-    public double dPrecioDepreciado { get; set; }
+    public decimal dPrecioDepreciado { get; set; }
 
-    public double dPrecioDesechable { get; set; }
+    public decimal dPrecioDesechable { get; set; }
 
     public string sCuentaActivo { get; set; }
 
@@ -96,17 +100,17 @@ public partial class EntDetalleModificacion
 
     public long? iIdFactura { get; set; }
 
-    public virtual ICollection<EntDetalleSolicitud> DetallesSolicitudes { get; set; } = new List<EntDetalleSolicitud>();
+	public long? iIdDatoGeneral { get; set; }
 
-    public virtual EntrBienPatrimonio Bien { get; set; }
+	public virtual ICollection<EntDetalleSolicitud> DetallesSolicitudes { get; set; } = new List<EntDetalleSolicitud>();
+
+    public virtual EntBienPatrimonio Bien { get; set; }
 
     public virtual EntBms Bms { get; set; }
 
     public virtual EntDatoInmueble DatoInmueble { get; set; }
 
     public virtual EntEstadoFisico EstadoFisico { get; set; }
-
-    public virtual EntEtapa Etapa { get; set; }
 
     public virtual EntFamilia Familia { get; set; }
 
@@ -123,4 +127,12 @@ public partial class EntDetalleModificacion
     public virtual EntUbicacion Ubicacion { get; set; }
 
     public virtual EntUnidadAdministrativa UnidadAdministrativa { get; set; }
+
+	public virtual EntUnidadAdministrativa CentroCosto { get; set; }
+
+	public virtual EntDatoGeneral DatoGeneral { get; set; }
+
+    public virtual EntFactura Factura { get; set; }
+
+    public virtual EntLicitacion Licitacion { get; set; }
 }

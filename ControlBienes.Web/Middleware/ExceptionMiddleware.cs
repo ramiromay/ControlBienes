@@ -1,4 +1,6 @@
-﻿using ControlBienes.Business.Genericos;
+﻿using ControlBienes.Business.Exceptions;
+using ControlBienes.Business.Genericos;
+using ControlBienes.Entities.Almacen.TipoMovimiento;
 using ControlBienes.Entities.Constants;
 using Newtonsoft.Json;
 using System.Net;
@@ -21,39 +23,29 @@ namespace ControlBienes.Web.Middleware
         {
             try
             {
-                
+                _logger.LogInformation("Llego al middleward");
                 await _requestDelegate(context);
             }
             catch (Exception ex)
             {
-                _logger.LogInformation("Error en la peticion");
-                _logger.LogError(ex, ex.Message);
-                EntityResponse<string> resultado = new()
-                {
-                    StatusCode = HttpStatusCode.InternalServerError,
-                    Message = $"Ocurrio un error interno: ",
-                    HasError = true,
-                    Code = EnumCodigoOperacion.CodeErrorColor
-                };
+                _logger.LogInformation("Se lanzo la execpcion");
 
-                context.Response.ContentType = "application/json";
+				EntityResponse<string> resultado = BusExceptionHandler.Handle<string>(
+					_logger,
+					ex,
+					null,
+					nameof(InvokeAsync),
+					"Ocurrio un error en la solicitud"
+				);
 
-                //switch (ex)
-                //{
-                //    case ValidationException validationException:
-                //        statusCode = (int)HttpStatusCode.BadRequest;
-                //        var validationJson = JsonConvert.SerializeObject(validationException.Errors);
-                //        result = JsonConvert.SerializeObject(new CodeErrorException(statusCode, ex.Message, validationJson));
-                //        break;
-                //    default:
-                //        break;
-                //}
-
+				context.Response.ContentType = "application/json";
                 resultado.Result = JsonConvert.SerializeObject(resultado);
                 await context.Response.WriteAsync(resultado.Result);
 
             }
         }
+
+
 
     }
 }

@@ -29,12 +29,34 @@ namespace ControlBienes.Data.Repository
             return await _context.SaveChangesAsync();
         }
 
-        public virtual async Task<int> DCrearAsync(T entity)
+		public virtual async Task<int> DCrearAsync(T entity)
         {
             _context.Set<T>().Add(entity);
             _context.Entry(entity).State = EntityState.Added;
             return await _context.SaveChangesAsync();
         }
+
+		public virtual async Task<int> DActualizarListaAsync(IEnumerable<T> entities)
+		{
+			foreach (var entity in entities)
+			{
+				_context.Set<T>().Attach(entity);
+				_context.Entry(entity).State = EntityState.Modified;
+			}
+
+			return await _context.SaveChangesAsync();
+		}
+
+		public virtual async Task<int> DCrearListaAsync(IEnumerable<T> entities)
+		{
+			foreach (var entity in entities)
+			{
+				_context.Set<T>().Add(entity);
+				_context.Entry(entity).State = EntityState.Added;
+			}
+
+			return await _context.SaveChangesAsync();
+		}
 
 		public virtual async Task<T?> DObtenerRegistroAsync(
             Expression<Func<T, bool>>? predicado = null,
@@ -102,5 +124,17 @@ namespace ControlBienes.Data.Repository
 
 		}
 
+		public async Task<bool> DExistenRegistrosAsync(IEnumerable<long> ids, Func<T, long> idSelector) 
+		{
+            if (ids == null || !ids.Any()) return true;
+			var allEntities = await _context.Set<T>().ToListAsync();
+			var existingIds = allEntities.Select(idSelector).ToHashSet();
+			return ids.All(id => existingIds.Contains(id));
+		}
+
+		public void DQuitarRastreo(T entidad)
+		{
+			_context.Entry(entidad).State = EntityState.Detached;
+		}
 	}
 }

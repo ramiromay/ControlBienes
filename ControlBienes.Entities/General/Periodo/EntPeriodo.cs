@@ -1,4 +1,6 @@
-﻿using ControlBienes.Entities.Catalogos;
+﻿using ControlBienes.Entities.Almacen.Bien;
+using ControlBienes.Entities.Almacen.Movimiento;
+using ControlBienes.Entities.Catalogos.Almacen;
 using ControlBienes.Entities.Catalogos.Resguardante;
 using ControlBienes.Entities.General.UnidadAdministrativa;
 using ControlBienes.Entities.Genericos;
@@ -21,7 +23,11 @@ public partial class EntPeriodo : EntRegistroGenerico
 
     public virtual ICollection<EntAlmacen> Almacenes { get; set; } = new List<EntAlmacen>();
 
-    public virtual ICollection<EntrBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntrBienPatrimonio>();
+	public virtual ICollection<EntBienAlmacen> Periodos { get; set; } = new List<EntBienAlmacen>();
+
+	public virtual ICollection<EntMovimiento> Movimientos { get; set; } = new List<EntMovimiento>();
+
+	public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
 
     public virtual ICollection<EntResguardante> Resguardantes { get; set; } = new List<EntResguardante>();
 

@@ -1,4 +1,5 @@
-﻿using ControlBienes.Entities.Patrimonio.Seguimiento;
+﻿using ControlBienes.Entities.Patrimonio.Historial;
+using ControlBienes.Entities.Patrimonio.Seguimiento;
 using ControlBienes.Entities.Seguridad.Empleado;
 using ControlBienes.Entities.Seguridad.UsuarioPermiso;
 using ControlBienes.Entities.Seguridad.UsuarioRol;
@@ -16,7 +17,9 @@ public partial class EntUsuario : IdentityUser<long>
 
 	public virtual ICollection<EntEmpleado> Empleados { get; set; } = new List<EntEmpleado>();
 
-    public virtual ICollection<EntSeguimiento> Seguimientos { get; set; } = new List<EntSeguimiento>();
+	public virtual ICollection<EntHistorial> Historial { get; set; } = new List<EntHistorial>();
+
+	public virtual ICollection<EntSeguimiento> Seguimientos { get; set; } = new List<EntSeguimiento>();
 
     public virtual ICollection<EntUsuarioPermiso> UsuariosPermisos { get; set; } = new List<EntUsuarioPermiso>();
 

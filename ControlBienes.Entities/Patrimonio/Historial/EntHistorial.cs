@@ -1,6 +1,7 @@
 ﻿using ControlBienes.Entities.Genericos;
 using ControlBienes.Entities.Patrimonio.Bien;
 using ControlBienes.Entities.Patrimonio.Solicitud;
+using ControlBienes.Entities.Seguridad.Usuario;
 using ControlBienes.Entities.Sistema.Modulo;
 using ControlBienes.Entities.Sistema.SubModulo;
 using System;
@@ -20,11 +21,15 @@ public partial class EntHistorial : EntRegistroGenerico
 
     public long iIdSolicitud { get; set; }
 
-    public virtual EntrBienPatrimonio Bien { get; set; }
+    public long iIdUsuario { get; set; }
+
+    public virtual EntBienPatrimonio Bien { get; set; }
 
     public virtual EntModulo Modulo { get; set; }
 
     public virtual EntSolicitud Solicitud { get; set; }
 
     public virtual EntSubModulo SubModulo { get; set; }
+
+    public virtual EntUsuario Usuario { get; set; }
 }

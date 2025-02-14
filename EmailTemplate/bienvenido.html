@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenida</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: white;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: white;
+            overflow: hidden;
+            border: 1px solid #dfdfdf;
+        }
+
+        .header {
+            background-color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header img {
+            width: 100px;
+            height: auto;
+            margin: 10px auto;
+        }
+
+        .body {
+            padding: 220px 20px 40px 20px;
+            text-align: center;
+            color: #333333;
+            background-image: url('https://firebasestorage.googleapis.com/v0/b/gasfull-1a846.appspot.com/o/email-background.png?alt=media&token=9147e26c-614b-4c25-9a82-aa0477c51b57');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .body h1 {
+            font-size: 22px;
+            margin: 10px 0;
+            color: #333333;
+        }
+
+        .body p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+
+        .icon-container {
+            margin: 40px auto 20px auto;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-container img {
+            width: 40px;
+            height: 40px;
+            margin: auto;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .body h1 {
+                font-size: 16px;
+            }
+
+            .body p {
+                font-size: 13px;
+            }
+
+            .icon-container {
+                width: 40px;
+                height: 40px;
+            }
+
+            .icon-container img {
+                width: 25px;
+                height: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://firebasestorage.googleapis.com/v0/b/gasfull-1a846.appspot.com/o/sicba-logo.png?alt=media&token=70103a71-83e6-47be-9a2c-a5b485fb83e5"
+            alt="sicba-logo">
+    </div>
+    <div class="container">
+        <div class="body">
+            <h1>Hola, {{nombreApellido}}:</h1>
+            <p>Te damos la bienvenida a SICBA. Nos complace informarte que ahora puedes acceder a los diferentes
+                sistemas de administración de bienes, diseñados para facilitar la gestión y optimizar tus procesos.</p>
+            <p>Estamos seguros de que juntos lograremos grandes cosas.</p>
+            <div class="icon-container">
+                <img src="https://firebasestorage.googleapis.com/v0/b/gasfull-1a846.appspot.com/o/security_24dp_0085F7_FILL0_wght400_GRAD0_opsz48.png?alt=media&token=e0bf047c-64ad-49af-8946-c802b662d784" alt="Icon">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

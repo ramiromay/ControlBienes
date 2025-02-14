@@ -9,6 +9,9 @@ using ControlBienes.Entities.Seguridad.Empleado;
 using ControlBienes.Entities.Seguridad.Rol;
 using ControlBienes.Entities.Seguridad.Usuario;
 using ControlBienes.Entities.Seguridad.UsuarioPermiso;
+using ControlBienes.Services.Constants;
+using ControlBienes.Services.Contracts;
+using ControlBienes.Services.Models;
 using ControlBienes.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +30,7 @@ namespace ControlBienes.Business.Features.Seguridad.Autentificacion
 {
 	public class BusAutentificacion : IBusAutentificacion
 	{
+		private readonly IEmailService _emailService;
 		private readonly SignInManager<EntUsuario> _signInManager;
 		private readonly IDatUsuarioPermiso _repositorioUsuarioPermiso;
 		private readonly IDatEmpleado _repositorioEmpleado;
@@ -37,6 +41,7 @@ namespace ControlBienes.Business.Features.Seguridad.Autentificacion
 		private readonly EnumCodigoOperacion _codeError = EnumCodigoOperacion.CodeErrorLogin;
 
 		public BusAutentificacion(
+			IEmailService emailService,
 			 SignInManager<EntUsuario> signInManager,
 			 RoleManager<EntRol> roleManager,
 			 IDatUsuarioPermiso repositorioUsuarioPermiso,
@@ -45,6 +50,7 @@ namespace ControlBienes.Business.Features.Seguridad.Autentificacion
 			 ILogger<BusAutentificacion> logger,
 			 IBusIdentityAccess servicioIdentityAccess)
 		{
+			_emailService = emailService;
 			_signInManager = signInManager;
 			_repositorioEmpleado = repositorioEmpleado;
 			_repositorioUsuarioPermiso = repositorioUsuarioPermiso;
@@ -144,6 +150,17 @@ namespace ControlBienes.Business.Features.Seguridad.Autentificacion
 			}
 
 			return resultado;
+		}
+
+		public async Task BEnviarCorreoPrueba()
+		{
+			var email = new EmailModels
+			{
+				To = "ramiromay1@gmail.com",
+				Subject = EmailTemplateConstants.ForgotPasswordSubject,
+				Template = EnumEmailTemplate.ForgotPassword
+			};
+			await _emailService.BSendEmailAsync(email);
 		}
 
 		private JwtSecurityToken BGenerateToken(EntUsuario usuario, IEnumerable<EntUsuarioPermiso> usuarioPermisos)

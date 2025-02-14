@@ -13,7 +13,7 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajo
                  .ForMember(dest => dest.Clave, opt => opt.MapFrom(src => src.sClave))
                  .ForMember(dest => dest.Direccion, opt => opt.MapFrom(src => src.sDireccion))
                  .ForMember(dest => dest.IdPeriodo, opt => opt.MapFrom(src => src.iIdPeriodo))
-                 .ForMember(dest => dest.IdUnidadAdministrativa, opt => opt.MapFrom(src => src.iIdUnidadAdministrativa))
+                 .ForMember(dest => dest.NivelUnidadAdministrativa, opt => opt.MapFrom(src => src.UnidadAdministrativa.sNivelCompleto))
                  .ForMember(dest => dest.UnidadAdministrativa, opt => opt.MapFrom(src => src.UnidadAdministrativa.sNombre))
                  .ForMember(dest => dest.IdMunicipio, opt => opt.MapFrom(src => src.iIdMunicipio))
                  .ForMember(dest => dest.Municipio, opt => opt.MapFrom(src => src.Municipio.sNombre))
@@ -23,7 +23,6 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajo
 
             CreateMap<EntCentroTrabajoRequest, EntCentroTrabajo>()
                .ForMember(dest => dest.iIdPeriodo, opt => opt.MapFrom(src => src.IdPeriodo))
-               .ForMember(dest => dest.iIdUnidadAdministrativa, opt => opt.MapFrom(src => src.IdUnidadAdministrativa))
                .ForMember(dest => dest.iIdMunicipio, opt => opt.MapFrom(src => src.IdMunicipio))
                .ForMember(dest => dest.sNombre, opt => opt.MapFrom(src => src.Nombre))
                .ForMember(dest => dest.sClave, opt => opt.MapFrom(src => src.Clave))

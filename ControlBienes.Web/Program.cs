@@ -1,4 +1,5 @@
 using ControlBienes.Business;
+using ControlBienes.Web.Middleware;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configuracion de servicios
-builder.Services.BRegistrarServiciosApp(builder, builder.Configuration);
+builder.Services.BRegistrarServiciosApp(builder.Configuration);
 
 
 
@@ -48,6 +49,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseCors("CorsPolicy");
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapControllers();
 

@@ -46,7 +46,7 @@ namespace ControlBienes.Business.Features.Sistema.Catalogo
                 var idUsuario = _servicioIdentityAccess.BObtenerIdUsuario();
                 var permisosUsuario = await _repositorioUsuarioPermiso.DObtenerTodosAsync(null, e => e.iIdUsuario == idUsuario);
 				var permisosIds = permisosUsuario.Select(p => p.iIdPermiso).ToList();
-				var catalogos = await _repositorio.DObtenerTodosAsync(null, e => e.iIdModulo == id && permisosIds.Contains(e.iIdPermiso));
+				var catalogos = await _repositorio.DObtenerTodosAsync(null, e => e.bActivo.Value && e.iIdModulo == id && permisosIds.Contains(e.iIdPermiso));
                 var result = _mapper.Map<IEnumerable<EntCatalogoResponse>>(catalogos);
                 resultado.Success(result, _code);
 			}

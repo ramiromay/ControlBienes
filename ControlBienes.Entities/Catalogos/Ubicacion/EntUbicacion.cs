@@ -14,7 +14,7 @@ public partial class EntUbicacion : EntCatalogoGenerico
 
     public string sDescripcion { get; set; }
 
-    public virtual ICollection<EntrBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntrBienPatrimonio>();
+    public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
 
     public virtual ICollection<EntDetalleAlta> DetallesAlta { get; set; } = new List<EntDetalleAlta>();
 

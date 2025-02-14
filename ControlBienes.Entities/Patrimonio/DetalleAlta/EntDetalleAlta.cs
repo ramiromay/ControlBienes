@@ -7,13 +7,13 @@ using ControlBienes.Entities.Catalogos.Ubicacion;
 using ControlBienes.Entities.General.BMS;
 using ControlBienes.Entities.General.Municipio;
 using ControlBienes.Entities.General.UnidadAdministrativa;
+using ControlBienes.Entities.Patrimonio.DatoGeneral;
 using ControlBienes.Entities.Patrimonio.DatoInmueble;
+using ControlBienes.Entities.Patrimonio.DetalleSolicitud;
 using ControlBienes.Entities.Patrimonio.Etapa;
 using ControlBienes.Entities.Patrimonio.Factura;
 using ControlBienes.Entities.Patrimonio.Licitacion;
 using ControlBienes.Entities.Patrimonio.Solicitud;
-using System;
-using System.Collections.Generic;
 
 namespace ControlBienes.Entities.Patrimonio.Alta;
 
@@ -22,8 +22,6 @@ public partial class EntDetalleAlta
     public long iIdDetalleAlta { get; set; }
 
     public long iIdSolicitud { get; set; }
-
-    public long iIdEtapa { get; set; }
 
     public int iNumeroBienes { get; set; }
 
@@ -35,7 +33,7 @@ public partial class EntDetalleAlta
 
     public long iIdSubfamilia { get; set; }
 
-    public long iIdBms { get; set; }
+    public long? iIdBms { get; set; }
 
     public string sReferenciaConac { get; set; }
 
@@ -53,11 +51,11 @@ public partial class EntDetalleAlta
 
     public long iIdTipoAdquisicion { get; set; }
 
-    public long iIdMunicipio { get; set; }
+    public long? iIdMunicipio { get; set; }
 
     public string sSustituyeBv { get; set; }
 
-    public long iIdUbicacion { get; set; }
+    public long? iIdUbicacion { get; set; }
 
     public string sNoSeries { get; set; }
 
@@ -65,7 +63,7 @@ public partial class EntDetalleAlta
 
     public long iIdEstadoFisico { get; set; }
 
-    public double dPrecioUnitario { get; set; }
+    public decimal dPrecioUnitario { get; set; }
 
     public int iAniosVida { get; set; }
 
@@ -73,9 +71,9 @@ public partial class EntDetalleAlta
 
     public DateTime dtFechaAdquisicion { get; set; }
 
-    public double dPrecioDepreciado { get; set; }
+    public decimal dPrecioDepreciado { get; set; }
 
-    public double dPrecioDesechable { get; set; }
+    public decimal dPrecioDesechable { get; set; }
 
     public string sCuentaActivo { get; set; }
 
@@ -95,13 +93,13 @@ public partial class EntDetalleAlta
 
     public long? iIdFactura { get; set; }
 
+    public long? iIdDatoGeneral { get; set; }
+
     public virtual ICollection<EntDetalleSolicitud> DetallesSolicitudes { get; set; } = new List<EntDetalleSolicitud>();
 
     public virtual EntBms Bms { get; set; }
 
     public virtual EntEstadoFisico EstadoFisico { get; set; }
-
-    public virtual EntEtapa Etapa { get; set; }
 
     public virtual EntFactura Factura { get; set; }
 
@@ -120,6 +118,8 @@ public partial class EntDetalleAlta
     public virtual EntTipoBien TipoBien { get; set; }
 
     public virtual EntUbicacion Ubicacion { get; set; }
+
+    public virtual EntDatoGeneral DatoGeneral { get; set; }
 
     public virtual EntUnidadAdministrativa UnidadAdministrativa { get; set; }
 

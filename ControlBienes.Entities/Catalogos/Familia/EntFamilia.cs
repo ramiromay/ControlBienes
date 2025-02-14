@@ -1,4 +1,5 @@
-﻿using ControlBienes.Entities.Almacen;
+﻿using ControlBienes.Entities.Almacen.Bien;
+using ControlBienes.Entities.Almacen.Movimiento;
 using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.Subfamilia;
 using ControlBienes.Entities.Catalogos.TipoBien;
@@ -22,7 +23,7 @@ public partial class EntFamilia : EntCatalogoGenerico
 
     public long? iIdTipoBien { get; set; }
 
-    public virtual ICollection<EntrBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntrBienPatrimonio>();
+    public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
 
     public virtual ICollection<EntBienAlmacen> BienesAlmacen { get; set; } = new List<EntBienAlmacen>();
 

@@ -12,6 +12,7 @@ namespace ControlBienes.Business.Contrats.Seguridad
     {
         Task<EntityResponse<EntAutentificacionResponse>> BLogin(EntAutentificacionRequest request);
         Task<EntityResponse<EntAutentificacionResponse>> BValidateToken(string token);
+        Task BEnviarCorreoPrueba();
 
 	}
 }

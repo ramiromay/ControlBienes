@@ -26,7 +26,7 @@ namespace ControlBienes.Business.Features.General.UnidadAdministrativa
             _mapper = mapper;
         }
 
-        public async Task<EntityResponse<IEnumerable<EntUnidadAdministrativaResponse>>> BObtenerTodosUnidadesAdministrativasAsync()
+        public async Task<EntityResponse<IEnumerable<EntUnidadAdministrativaResponse>>> BObtenerTodosUnidadesAdministrativasAsync(int desdeNivel, int hastaNivel)
         {
             var nombreMetodo = nameof(BObtenerTodosUnidadesAdministrativasAsync);
             var resultado = new EntityResponse<IEnumerable<EntUnidadAdministrativaResponse>>();
@@ -34,11 +34,15 @@ namespace ControlBienes.Business.Features.General.UnidadAdministrativa
             _logger.LogInformation($"{(long)_code}: Inicia la operacion para consultar todos las unidades administrativas");
             try
             {
+                Expression<Func<EntUnidadAdministrativa, bool>> predicado = e => 
+                    e.TipoNivel.iNivel >= desdeNivel && 
+                    e.TipoNivel.iNivel <= hastaNivel;
+
                 var includes = new List<Expression<Func<EntUnidadAdministrativa, object>>>()
                 {
                     f => f.TipoNivel
                 };
-                var entidades = await _repositorio.DObtenerTodosAsync(includes);
+                var entidades = await _repositorio.DObtenerTodosAsync(incluir: includes, predicado: predicado);
                 resultado.Result = _mapper.Map<IEnumerable<EntUnidadAdministrativaResponse>>(entidades);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;

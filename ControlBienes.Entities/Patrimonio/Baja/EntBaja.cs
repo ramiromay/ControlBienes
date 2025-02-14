@@ -10,15 +10,17 @@ public partial class EntBaja
 {
     public long iIdBaja { get; set; }
 
-    public long iIdUnidadAdministrativa { get; set; }
+    public long? iIdUnidadAdministrativa { get; set; }
 
-    public long iIdEmpleado { get; set; }
+    public long? iIdEmpleado { get; set; }
 
     public long iIdTipoBien { get; set; }
 
     public string sFolioBien { get; set; }
 
     public string sObservaciones { get; set; }
+
+    public string sFolioDocumento { get; set; }
 
     public string sFolioDictamen { get; set; }
 

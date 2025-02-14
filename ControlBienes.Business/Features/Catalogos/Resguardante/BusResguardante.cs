@@ -64,7 +64,7 @@ namespace ControlBienes.Business.Features.Catalogos.Resguardante
         private async Task BValidarRequestBD(EntResguardanteRequest request)
         {
             var existePeriodo = await _repositorioPeriodo.DExisteRegistroAsync(e => e.iIdPeriodo == request.IdPeriodo);
-            var existeUnidadAdministrativa = await _repositorioUnidadAdministrativa.DExisteRegistroAsync(e => e.iIdUnidadAdministrativa == request.IdUnidadAdministrativa);
+            var existeUnidadAdministrativa = await _repositorioUnidadAdministrativa.DExisteRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
             var existeePersona = await _respositorioPersona.DExisteRegistroAsync(e => e.iIdPersona == request.IdPersona);
             var existeTipoResponsable = await _repositorioTipoResponsable.DExisteRegistroAsync(e => e.iIdTipoResponsable == request.IdTipoResponsable);
 
@@ -90,10 +90,11 @@ namespace ControlBienes.Business.Features.Catalogos.Resguardante
                 await BValidarRequestBD(request);
                 var entidad = await _repositorio.DObtenerRegistroAsync(id)
                     ?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
-                entidad.iIdPeriodo = request.IdPeriodo.Value;
+				var unidadAdministrativa = await _repositorioUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
+                entidad.iIdUnidadAdministrativa = unidadAdministrativa.iIdUnidadAdministrativa;
+				entidad.iIdPeriodo = request.IdPeriodo.Value;
                 entidad.iIdPersona = request.IdPersona.Value;
                 entidad.iIdTipoResponsable = request.IdTipoResponsable.Value;
-                entidad.iIdUnidadAdministrativa = request.IdUnidadAdministrativa.Value;
                 entidad.iNoConvenio = request.NoConvenio.Value;
                 entidad.sObservaciones = request.Observaciones;
                 entidad.bResponsable = request.Responsable;
@@ -156,7 +157,10 @@ namespace ControlBienes.Business.Features.Catalogos.Resguardante
                 BValidarRequest(request);
                 await BValidarRequestBD(request);
                 var entidad = _mapper.Map<EntResguardante>(request);
-                resultado.Result = await _repositorio.DCrearAsync(entidad);
+                var unidadAdministrativa = await _repositorioUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
+                entidad.iIdUnidadAdministrativa = unidadAdministrativa.iIdUnidadAdministrativa;
+
+				resultado.Result = await _repositorio.DCrearAsync(entidad);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
                 resultado.Code = _code;

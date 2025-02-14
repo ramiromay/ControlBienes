@@ -27,10 +27,9 @@ namespace ControlBienes.Business.Features.Catalogos.Resguardante
                .NotEmpty().WithMessage("Se requiere el Tipo de Responsable")
                .Must(x => x > 0).WithMessage("La Tipo de Responsable es invalido");
 
-            RuleFor(request => request.IdUnidadAdministrativa)
+            RuleFor(request => request.NivelUnidadAdministrativa)
                .Cascade(CascadeMode.Stop)
-               .NotEmpty().WithMessage("Se requiere la Unidad Administrativa")
-               .Must(x => x > 0).WithMessage("La Unidad Administrativa es invalido");
+               .NotEmpty().WithMessage("La Unidad Administrativa es invalido");
         }
     }
 }

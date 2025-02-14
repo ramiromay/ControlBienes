@@ -1,4 +1,4 @@
-﻿using ControlBienes.Entities.Catalogos;
+﻿using ControlBienes.Entities.Catalogos.Almacen;
 using ControlBienes.Entities.Genericos;
 using System;
 using System.Collections.Generic;

@@ -41,5 +41,11 @@ namespace ControlBienes.Web.Controllers.Seguridad
 			return StatusCode((int)response.StatusCode, response);
 		}
 
+		[HttpGet("correo")]
+		public async Task<ActionResult<EntityResponse<int>>> CEnviarCorreoPrueba()
+		{
+			await _servicio.BEnviarCorreoPrueba();
+			return StatusCode(200, 1);
+		}
 	}
 }

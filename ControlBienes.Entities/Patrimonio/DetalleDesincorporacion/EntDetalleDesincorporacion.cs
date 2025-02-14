@@ -1,6 +1,6 @@
-﻿using ControlBienes.Entities.Catalogos.TipoBien;
+﻿    using ControlBienes.Entities.Catalogos.TipoBien;
 using ControlBienes.Entities.General.UnidadAdministrativa;
-using ControlBienes.Entities.Patrimonio.Solicitud;
+using ControlBienes.Entities.Patrimonio.DetalleSolicitud;
 using ControlBienes.Entities.Seguridad.Empleado;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ public partial class EntDetalleDesincorporacion
 
     public long iIdUnidadAdministrativa { get; set; }
 
-    public long iIdEmpleado { get; set; }
+    public long? iIdEmpleado { get; set; }
 
     public long iIdTipoBien { get; set; }
 

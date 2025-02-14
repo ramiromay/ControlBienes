@@ -2,7 +2,15 @@
 using System.Collections.Generic;
 using ControlBienes.Business.Configuracion;
 using ControlBienes.Entities.Almacen;
+using ControlBienes.Entities.Almacen.Bien;
+using ControlBienes.Entities.Almacen.EtapaMovimiento;
+using ControlBienes.Entities.Almacen.MetodoCosteo;
+using ControlBienes.Entities.Almacen.Movimiento;
+using ControlBienes.Entities.Almacen.MovimientoBien;
+using ControlBienes.Entities.Almacen.ProgramaOperativo;
+using ControlBienes.Entities.Almacen.Proveedor;
 using ControlBienes.Entities.Catalogos;
+using ControlBienes.Entities.Catalogos.Almacen;
 using ControlBienes.Entities.Catalogos.CaracteristicaBien;
 using ControlBienes.Entities.Catalogos.CentroTrabajo;
 using ControlBienes.Entities.Catalogos.CentroTrabajoTurno;
@@ -10,12 +18,14 @@ using ControlBienes.Entities.Catalogos.ClaseVehicular;
 using ControlBienes.Entities.Catalogos.ClaveVehicular;
 using ControlBienes.Entities.Catalogos.Color;
 using ControlBienes.Entities.Catalogos.CombustibleVehicular;
+using ControlBienes.Entities.Catalogos.ConceptoMovimiento;
 using ControlBienes.Entities.Catalogos.Documento;
 using ControlBienes.Entities.Catalogos.EstadoFisico;
 using ControlBienes.Entities.Catalogos.EstadoGeneral;
 using ControlBienes.Entities.Catalogos.Familia;
 using ControlBienes.Entities.Catalogos.LineaVehicular;
 using ControlBienes.Entities.Catalogos.Marca;
+using ControlBienes.Entities.Catalogos.MetodoAdquisicion;
 using ControlBienes.Entities.Catalogos.OrigenValor;
 using ControlBienes.Entities.Catalogos.Resguardante;
 using ControlBienes.Entities.Catalogos.Subfamilia;
@@ -51,7 +61,9 @@ using ControlBienes.Entities.Patrimonio.DatoVehicular;
 using ControlBienes.Entities.Patrimonio.Depreciacion;
 using ControlBienes.Entities.Patrimonio.Desincorporacion;
 using ControlBienes.Entities.Patrimonio.DestinoFinal;
+using ControlBienes.Entities.Patrimonio.DetalleSolicitud;
 using ControlBienes.Entities.Patrimonio.Etapa;
+using ControlBienes.Entities.Patrimonio.EtapaSolicitud;
 using ControlBienes.Entities.Patrimonio.EtapaTramite;
 using ControlBienes.Entities.Patrimonio.Factura;
 using ControlBienes.Entities.Patrimonio.Historial;
@@ -109,7 +121,7 @@ public partial class AppDbContext : IdentityDbContext<
 
     public virtual DbSet<EntBienAlmacen> Bienes { get; set; }
 
-    public virtual DbSet<EntrBienPatrimonio> Bienes1 { get; set; }
+    public virtual DbSet<EntBienPatrimonio> Bienes1 { get; set; }
 
     public virtual DbSet<EntBms> Bms { get; set; }
 
@@ -174,6 +186,8 @@ public partial class AppDbContext : IdentityDbContext<
     public virtual DbSet<EntEtapa> Etapas { get; set; }
 
     public virtual DbSet<EntEtapaTramite> EtapasTramites { get; set; }
+
+    public virtual DbSet<EntEtapaMovimiento> EtapasSolicitudes { get; set; }
 
     public virtual DbSet<EntFactura> Facturas { get; set; }
 
@@ -340,7 +354,6 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.iIdMetodoCosteo).HasColumnName("iIdMetodoCosteo");
             entity.Property(e => e.iIdPeriodo).HasColumnName("iIdPeriodo");
             entity.Property(e => e.sDireccion)
-                .IsRequired()
                 .HasColumnName("sDireccion");
             entity.Property(e => e.sFolioEntrada)
                 .HasMaxLength(50)
@@ -349,10 +362,8 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasMaxLength(50)
                 .HasColumnName("sFolioSalida");
             entity.Property(e => e.sHorario)
-                .IsRequired()
                 .HasColumnName("sHorario");
             entity.Property(e => e.sNombre)
-                .IsRequired()
                 .HasMaxLength(255)
                 .HasColumnName("sNombre");
 
@@ -425,7 +436,11 @@ public partial class AppDbContext : IdentityDbContext<
                 .IsRequired()
                 .HasMaxLength(25)
                 .HasColumnName("sFolioDictamen");
-            entity.Property(e => e.sListaDocunetario).HasColumnName("sListaDocunetario");
+			entity.Property(e => e.sFolioDocumento)
+				.IsRequired()
+				.HasMaxLength(255)
+				.HasColumnName("sFolioDocumente");
+			entity.Property(e => e.sListaDocunetario).HasColumnName("sListaDocunetario");
             entity.Property(e => e.sLugarResguardo)
                 .IsRequired()
                 .HasMaxLength(255)
@@ -459,7 +474,7 @@ public partial class AppDbContext : IdentityDbContext<
             entity.ToTable("BajasInmuebles", "Patrimonio");
 
             entity.Property(e => e.iIdBajaInmueble).HasColumnName("iIdBajaInmueble");
-            entity.Property(e => e.dValorBaja).HasColumnName("dValorBaja");
+            entity.Property(e => e.dValorBaja).HasColumnName("dValorBaja").HasPrecision(18,4);
             entity.Property(e => e.dValorBienPermutadoConstruccion).HasColumnName("dValorBienPermutadoConstruccion");
             entity.Property(e => e.dValorBienPermutadoTerreno).HasColumnName("dValorBienPermutadoTerreno");
             entity.Property(e => e.dtFechaBaja)
@@ -569,7 +584,11 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.iIdAlmacen).HasColumnName("iIdAlmacen");
             entity.Property(e => e.iIdFamilia).HasColumnName("iIdFamilia");
             entity.Property(e => e.iIdSubfamilia).HasColumnName("iIdSubfamilia");
-            entity.Property(e => e.nCodigoArmonizado)
+			entity.Property(e => e.iIdBms).HasColumnName("iIdBms");
+			entity.Property(e => e.iIdPeriodo).HasColumnName("iIdPeriodo");
+
+
+			entity.Property(e => e.nCodigoArmonizado)
                 .HasColumnType("numeric(10, 0)")
                 .HasColumnName("nCodigoArmonizado");
             entity.Property(e => e.sDescripcion).HasColumnName("sDescripcion");
@@ -578,7 +597,18 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasMaxLength(50)
                 .HasColumnName("sUnidadMedida");
 
-            entity.HasOne(d => d.Almacen).WithMany(p => p.Bienes)
+
+			entity.HasOne(d => d.Bms).WithMany(p => p.BienesAlmacen)
+				.HasForeignKey(d => d.iIdBms)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_Bienes_iIdBms");
+
+			entity.HasOne(d => d.Periodo).WithMany(p => p.Periodos)
+			.HasForeignKey(d => d.iIdPeriodo)
+			.OnDelete(DeleteBehavior.ClientSetNull)
+			.HasConstraintName("FK_Bienes_iIdPeriodo");
+
+			entity.HasOne(d => d.Almacen).WithMany(p => p.Bienes)
                 .HasForeignKey(d => d.iIdAlmacen)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AlmacenBienes_iIdAlmacen");
@@ -594,7 +624,7 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasConstraintName("FK_AlmacenBienes_iIdSubfamilia");
         });
 
-        modelBuilder.Entity<EntrBienPatrimonio>(entity =>
+        modelBuilder.Entity<EntBienPatrimonio>(entity =>
         {
             entity.HasKey(e => e.iIdBien).HasName("PK__Bienes__23B12AEDCBFD51DE");
 
@@ -605,10 +635,18 @@ public partial class AppDbContext : IdentityDbContext<
                 .IsRequired()
                 .HasDefaultValueSql("((1))")
                 .HasColumnName("bDeprecia");
-            entity.Property(e => e.dPrecioDepreciado).HasColumnName("dPrecioDepreciado");
-            entity.Property(e => e.dPrecioDesechable).HasColumnName("dPrecioDesechable");
-            entity.Property(e => e.dPrecioUnitario).HasColumnName("dPrecioUnitario");
-            entity.Property(e => e.dtFechaAdquisicion)
+			entity.Property(e => e.bEnProceso)
+			 .IsRequired()
+			 .HasDefaultValueSql("((0))")
+			 .HasColumnName("bEnProceso");
+			entity.Property(e => e.bActivo)
+			   .IsRequired()
+			   .HasDefaultValueSql("((1))")
+			   .HasColumnName("bActivo");
+			entity.Property(e => e.dPrecioDepreciado).HasColumnName("dPrecioDepreciado").HasPrecision(18, 4);
+			entity.Property(e => e.dPrecioDesechable).HasColumnName("dPrecioDesechable").HasPrecision(18, 4);
+			entity.Property(e => e.dPrecioUnitario).HasColumnName("dPrecioUnitario").HasPrecision(18, 4);
+			entity.Property(e => e.dtFechaAdquisicion)
                 .HasColumnType("date")
                 .HasColumnName("dtFechaAdquisicion");
             entity.Property(e => e.dtFechaAlta)
@@ -663,8 +701,32 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.sSustituyeBv)
                 .HasMaxLength(50)
                 .HasColumnName("sSustituyeBV");
+			entity.Property(e => e.iIdSolicitud).HasColumnName("iIdSolicitud");
+			entity.Property(e => e.iIdDatoGeneral).HasColumnName("iIdDatoGeneral");
+			entity.Property(e => e.iIdFactura).HasColumnName("iIdFactura");
+			entity.Property(e => e.iIdLicitacion).HasColumnName("iIdLicitacion");
 
-            entity.HasOne(d => d.Bms).WithMany(p => p.BienesPatrimonio)
+			entity.HasOne(d => d.DatoGeneral).WithMany(p => p.BienesPatrimonio)
+				.HasForeignKey(d => d.iIdDatoGeneral)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_Bienes_iIdDatoGeneral");
+
+			entity.HasOne(d => d.Licitacion).WithMany(p => p.BienesPatrimonio)
+				.HasForeignKey(d => d.iIdLicitacion)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_Bienes_iIdLicitacion");
+
+			entity.HasOne(d => d.Factura).WithMany(p => p.BienesPatrimonio)
+				.HasForeignKey(d => d.iIdFactura)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_Bienes_iIdFactura");
+
+			entity.HasOne(d => d.Solicitud).WithMany(p => p.BienesPatrimonio)
+				.HasForeignKey(d => d.iIdSolicitud)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_Bienes_iIdSolicitud");
+
+			entity.HasOne(d => d.Bms).WithMany(p => p.BienesPatrimonio)
                 .HasForeignKey(d => d.iIdBms)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Bienes_iIdBMS");
@@ -726,7 +788,8 @@ public partial class AppDbContext : IdentityDbContext<
             entity.ToTable("BMS", "General");
 
             entity.Property(e => e.iIdBms).HasColumnName("iIdBMS");
-            entity.Property(e => e.bActivo).HasColumnName("bActivo");
+			entity.Property(e => e.sPartidas).HasColumnName("sPartidas");
+			entity.Property(e => e.bActivo).HasColumnName("bActivo");
             entity.Property(e => e.dPrecioUnitario).HasColumnName("dPrecioUnitario");
             entity.Property(e => e.dtFechaCreacion)
                 .HasDefaultValueSql("(getdate())")
@@ -1058,7 +1121,6 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasColumnName("dtFechaModificacion");
             entity.Property(e => e.iIdTipoMovimiento).HasColumnName("iIdTipoMovimiento");
             entity.Property(e => e.sDescripcion)
-                .IsRequired()
                 .HasColumnName("sDescripcion");
             entity.Property(e => e.sNombre)
                 .IsRequired()
@@ -1148,6 +1210,7 @@ public partial class AppDbContext : IdentityDbContext<
             entity.HasOne(d => d.VersionVehicular).WithMany(p => p.DatosGenerales)
                 .HasForeignKey(d => d.iIdVersionVehicular)
                 .HasConstraintName("FK_DatosGenerales_iIdVersionVehicular");
+
         });
 
         modelBuilder.Entity<EntDatoInmueble>(entity =>
@@ -1171,12 +1234,23 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasMaxLength(300)
                 .HasColumnName("sAfectante");
             entity.Property(e => e.sNomenclatura).HasColumnName("sNomenclatura");
-            entity.Property(e => e.sPublicacion)
+			entity.Property(e => e.sEscrituraTitulo).HasColumnName("sEscrituraTitulo");
+			entity.Property(e => e.sExpediente).HasColumnName("sExpediente");
+			entity.Property(e => e.sPublicacion)
                 .IsRequired()
                 .HasMaxLength(255)
                 .HasColumnName("sPublicacion");
+			entity.Property(e => e.dDepreciacion)
+				.HasPrecision(18, 4)
+				.HasColumnName("dDepreciacion");
+			entity.Property(e => e.dValorHistorico)
+				.HasPrecision(18, 4)
+				.HasColumnName("dValorHistorico");
+			entity.Property(e => e.dValorLibros)
+				.HasPrecision(18, 4)
+				.HasColumnName("dValorLibros");
 
-            entity.HasOne(d => d.DatosRegistral).WithMany(p => p.DatosInmuebles)
+			entity.HasOne(d => d.DatosRegistral).WithMany(p => p.DatosInmuebles)
                 .HasForeignKey(d => d.iIdDatoRegistral)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_iIdInformacionRegistral");
@@ -1217,10 +1291,10 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.bActivo).HasColumnName("bActivo");
             entity.Property(e => e.dSuperficie).HasColumnName("dSuperficie");
             entity.Property(e => e.dSuperficieContruccion).HasColumnName("dSuperficieContruccion");
-            entity.Property(e => e.dValorConstruccion).HasColumnName("dValorConstruccion");
-            entity.Property(e => e.dValorInicial).HasColumnName("dValorInicial");
-            entity.Property(e => e.dValorTerreno).HasColumnName("dValorTerreno");
-            entity.Property(e => e.dtFechaCreacion)
+            entity.Property(e => e.dValorConstruccion).HasColumnName("dValorConstruccion").HasPrecision(18, 4);
+			entity.Property(e => e.dValorInicial).HasColumnName("dValorInicial").HasPrecision(18, 4);
+			entity.Property(e => e.dValorTerreno).HasColumnName("dValorTerreno").HasPrecision(18, 4);
+			entity.Property(e => e.dtFechaCreacion)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("dtFechaCreacion");
@@ -1295,16 +1369,26 @@ public partial class AppDbContext : IdentityDbContext<
             entity.ToTable("Depreciaciones", "Patrimonio");
 
             entity.Property(e => e.iIdDepreciacion).HasColumnName("iIdDepreciacion");
-            entity.Property(e => e.dDepreciacionFiscal)
-                .HasColumnType("decimal(9, 6)")
+			entity.Property(e => e.bActivo).HasColumnName("bActivo");
+			entity.Property(e => e.iAniosVida).HasColumnName("iAniosVida");
+			entity.Property(e => e.dDepreciacionFiscal)
+                .HasColumnType("decimal(18,6)")
                 .HasColumnName("dDepreciacionFiscal");
-            entity.Property(e => e.dDepreciaionAcumulada)
-                .HasColumnType("decimal(9, 6)")
+			entity.Property(e => e.dValorHistorico)
+				.HasColumnType("decimal(18,6)")
+				.HasColumnName("dValorHistorico");
+			entity.Property(e => e.dDepreciaionAcumulada)
+                .HasColumnType("decimal(18,6)")
                 .HasColumnName("dDepreciaionAcumulada");
             entity.Property(e => e.dTasa)
-                .HasColumnType("decimal(9, 6)")
-                .HasColumnName("dTasa");
-            entity.Property(e => e.dValorLibros).HasColumnName("dValorLibros");
+                .HasColumnType("decimal(18,6)")
+				.HasColumnName("dTasa");
+			entity.Property(e => e.dDepreciacion)
+				.HasColumnType("decimal(18,6)")
+				.HasColumnName("dDepreciacion");
+			entity.Property(e => e.dValorLibros)
+                .HasColumnType("decimal(18,6)")
+                .HasColumnName("dValorLibros");
             entity.Property(e => e.dtFecha)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("date")
@@ -1319,10 +1403,10 @@ public partial class AppDbContext : IdentityDbContext<
             entity.ToTable("DetallesAltas", "Patrimonio");
 
             entity.Property(e => e.iIdDetalleAlta).HasColumnName("iIdDetalleAlta");
-            entity.Property(e => e.dPrecioDepreciado).HasColumnName("dPrecioDepreciado");
-            entity.Property(e => e.dPrecioDesechable).HasColumnName("dPrecioDesechable");
-            entity.Property(e => e.dPrecioUnitario).HasColumnName("dPrecioUnitario");
-            entity.Property(e => e.dtFechaAdquisicion)
+            entity.Property(e => e.dPrecioDepreciado).HasColumnName("dPrecioDepreciado").HasPrecision(18, 4);
+			entity.Property(e => e.dPrecioDesechable).HasColumnName("dPrecioDesechable").HasPrecision(18, 4);
+			entity.Property(e => e.dPrecioUnitario).HasColumnName("dPrecioUnitario").HasPrecision(18, 4);
+			entity.Property(e => e.dtFechaAdquisicion)
                 .HasColumnType("date")
                 .HasColumnName("dtFechaAdquisicion");
             entity.Property(e => e.dtFechaInicioUso)
@@ -1331,7 +1415,6 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.iAniosVida).HasColumnName("iAniosVida");
             entity.Property(e => e.iIdBms).HasColumnName("iIdBMS");
             entity.Property(e => e.iIdEstadoFisico).HasColumnName("iIdEstadoFisico");
-            entity.Property(e => e.iIdEtapa).HasColumnName("iIdEtapa");
             entity.Property(e => e.iIdFactura).HasColumnName("iIdFactura");
             entity.Property(e => e.iIdFamilia).HasColumnName("iIdFamilia");
             entity.Property(e => e.iIdLicitacion).HasColumnName("iIdLicitacion");
@@ -1342,7 +1425,8 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.iIdTipoBien).HasColumnName("iIdTipoBien");
             entity.Property(e => e.iIdUbicacion).HasColumnName("iIdUbicacion");
             entity.Property(e => e.iIdUnidadAdministrativa).HasColumnName("iIdUnidadAdministrativa");
-            entity.Property(e => e.iNumeroBienes).HasColumnName("iNumeroBienes");
+			entity.Property(e => e.iIdDatoGeneral).HasColumnName("iIdDatoGeneral");
+			entity.Property(e => e.iNumeroBienes).HasColumnName("iNumeroBienes");
             entity.Property(e => e.iIdDatoInmueble).HasColumnName("idDatoInmueble");
             entity.Property(e => e.sCaracteristicas).HasColumnName("sCaracteristicas");
             entity.Property(e => e.sCuentaActivo)
@@ -1384,11 +1468,6 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasForeignKey(d => d.iIdEstadoFisico)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DetallesAltas_iIdEstadoFisico");
-
-            entity.HasOne(d => d.Etapa).WithMany(p => p.DetallesAlta)
-                .HasForeignKey(d => d.iIdEtapa)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DetallesAltas_iIdEtapa");
 
             entity.HasOne(d => d.Factura).WithMany(p => p.DetallesAlta)
                 .HasForeignKey(d => d.iIdFactura)
@@ -1441,7 +1520,12 @@ public partial class AppDbContext : IdentityDbContext<
             entity.HasOne(d => d.DatosInmueble).WithMany(p => p.DetallesAlta)
                 .HasForeignKey(d => d.iIdDatoInmueble)
                 .HasConstraintName("FK_DetallesAltas_iIdDatosInmueblesAltas");
-        });
+
+
+			entity.HasOne(d => d.DatoGeneral).WithMany(p => p.DetallesAlta)
+				.HasForeignKey(d => d.iIdDatoGeneral)
+				.HasConstraintName("FK_DetallesAltas_iIdDatoGeneral");
+		});
 
         modelBuilder.Entity<EntDetalleBaja>(entity =>
         {
@@ -1613,10 +1697,10 @@ public partial class AppDbContext : IdentityDbContext<
             entity.ToTable("DetallesModificaciones", "Patrimonio");
 
             entity.Property(e => e.iIdDetalleModificacion).HasColumnName("iIdDetalleModificacion");
-            entity.Property(e => e.dPrecioDepreciado).HasColumnName("dPrecioDepreciado");
-            entity.Property(e => e.dPrecioDesechable).HasColumnName("dPrecioDesechable");
-            entity.Property(e => e.dPrecioUnitario).HasColumnName("dPrecioUnitario");
-            entity.Property(e => e.dtFechaAdquisicion)
+            entity.Property(e => e.dPrecioDepreciado).HasColumnName("dPrecioDepreciado").HasPrecision(18, 4);
+			entity.Property(e => e.dPrecioDesechable).HasColumnName("dPrecioDesechable").HasPrecision(18, 4);
+			entity.Property(e => e.dPrecioUnitario).HasColumnName("dPrecioUnitario").HasPrecision(18, 4);
+			entity.Property(e => e.dtFechaAdquisicion)
                 .HasColumnType("date")
                 .HasColumnName("dtFechaAdquisicion");
             entity.Property(e => e.dtFechaInicioUso)
@@ -1627,7 +1711,6 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.iIdBms).HasColumnName("iIdBMS");
             entity.Property(e => e.iIdDatoInmueble).HasColumnName("iIdDatoInmueble");
             entity.Property(e => e.iIdEstadoFisico).HasColumnName("iIdEstadoFisico");
-            entity.Property(e => e.iIdEtapa).HasColumnName("iIdEtapa");
             entity.Property(e => e.iIdFactura).HasColumnName("iIdFactura");
             entity.Property(e => e.iIdFamilia).HasColumnName("iIdFamilia");
             entity.Property(e => e.iIdLicitacion).HasColumnName("iIdLicitacion");
@@ -1638,7 +1721,11 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.iIdTipoBien).HasColumnName("iIdTipoBien");
             entity.Property(e => e.iIdUbicacion).HasColumnName("iIdUbicacion");
             entity.Property(e => e.iIdUnidadAdministrativa).HasColumnName("iIdUnidadAdministrativa");
-            entity.Property(e => e.iNumeroBienes).HasColumnName("iNumeroBienes");
+			entity.Property(e => e.iIdCentroCosto).HasColumnName("iIdCentroCosto");
+			entity.Property(e => e.iIdDatoGeneral).HasColumnName("iIdDatoGeneral");
+			entity.Property(e => e.iIdLicitacion).HasColumnName("iIdLicitacion");
+			entity.Property(e => e.iIdFactura).HasColumnName("iIdFactura");
+			entity.Property(e => e.iNumeroBienes).HasColumnName("iNumeroBienes");
             entity.Property(e => e.sCaracteristicas).HasColumnName("sCaracteristicas");
             entity.Property(e => e.sCuentaActivo)
                 .HasMaxLength(50)
@@ -1675,7 +1762,22 @@ public partial class AppDbContext : IdentityDbContext<
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DetallesModificaciones_iIdBien");
 
-            entity.HasOne(d => d.Bms).WithMany(p => p.DetallesModificaciones)
+			entity.HasOne(d => d.DatoGeneral).WithMany(p => p.DetallesModificacion)
+				.HasForeignKey(d => d.iIdDatoGeneral)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_DetallesModificaciones_iIdDatoGeneral");
+
+			entity.HasOne(d => d.Licitacion).WithMany(p => p.DetallesModificacion)
+				.HasForeignKey(d => d.iIdLicitacion)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_DetallesModificaciones_iIdLicitacion");
+
+			entity.HasOne(d => d.Factura).WithMany(p => p.DetallesModificacion)
+				.HasForeignKey(d => d.iIdFactura)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_DetallesModificaciones_iIdFactura");
+
+			entity.HasOne(d => d.Bms).WithMany(p => p.DetallesModificaciones)
                 .HasForeignKey(d => d.iIdBms)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DetallesModificaciones_iIdBMS");
@@ -1688,11 +1790,6 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasForeignKey(d => d.iIdEstadoFisico)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DetallesModificaciones_iIdEstadoFisico");
-
-            entity.HasOne(d => d.Etapa).WithMany(p => p.DetallesModificaciones)
-                .HasForeignKey(d => d.iIdEtapa)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DetallesModificaciones_iIdEtapa");
 
             entity.HasOne(d => d.Familia).WithMany(p => p.DetallesModificaciones)
                 .HasForeignKey(d => d.iIdFamilia)
@@ -1733,7 +1830,12 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasForeignKey(d => d.iIdUnidadAdministrativa)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DetallesModificaciones_iIdUnidadAdministrativa");
-        });
+
+			entity.HasOne(d => d.CentroCosto).WithMany(p => p.DetallesModificacionesCentroCosto)
+				.HasForeignKey(d => d.iIdCentroCosto)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_DetallesModificaciones_iIdCentroCosto");
+		});
 
         modelBuilder.Entity<EntDetalleMovimiento>(entity =>
         {
@@ -1987,7 +2089,65 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasColumnName("sNombre");
         });
 
-        modelBuilder.Entity<EntEtapaTramite>(entity =>
+		modelBuilder.Entity<EntEtapaSolicitud>(entity =>
+		{
+			entity.HasKey(e => e.iIdEtapaSolicitud).HasName("PK__EtapasSo__5DC1FC1F61C83CF2");
+
+			entity.ToTable("EtapasSolicitudes", "Patrimonio");
+
+			entity.Property(e => e.iIdEtapaSolicitud).HasColumnName("iIdEtapaSolicitud");
+			entity.Property(e => e.dtFechaCreacion)
+				.HasDefaultValueSql("(getdate())")
+				.HasColumnType("datetime")
+				.HasColumnName("dtFechaCreacion");
+			entity.Property(e => e.dtFechaModificacion)
+				.HasDefaultValueSql("(getdate())")
+				.HasColumnType("datetime")
+				.HasColumnName("dtFechaModificacion");
+			entity.Property(e => e.iIdEtapaDestino).HasColumnName("iIdEtapaDestino");
+			entity.Property(e => e.iIdEtapaOrigen).HasColumnName("iIdEtapaOrigen");
+
+			entity.HasOne(d => d.EtapaDestino).WithMany(p => p.EtapasSolicitudesDestino)
+				.HasForeignKey(d => d.iIdEtapaDestino)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_EtapasSolicitudes_iIdEtapaDestino");
+
+			entity.HasOne(d => d.EtapaOrigen).WithMany(p => p.EtapasSolicitudesOrigen)
+				.HasForeignKey(d => d.iIdEtapaOrigen)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_EtapasSolicitudes_iIdEtapaOrigen");
+		});
+
+		modelBuilder.Entity<EntEtapaMovimiento>(entity =>
+		{
+			entity.HasKey(e => e.iIdEtapaMovimiento).HasName("PK__EtapasMo__E146684BD7569366");
+
+			entity.ToTable("EtapasMovimientos", "Almacen");
+
+			entity.Property(e => e.iIdEtapaMovimiento).HasColumnName("iIdEtapaMovimiento");
+			entity.Property(e => e.dtFechaCreacion)
+				.HasDefaultValueSql("(getdate())")
+				.HasColumnType("datetime")
+				.HasColumnName("dtFechaCreacion");
+			entity.Property(e => e.dtFechaModificacion)
+				.HasDefaultValueSql("(getdate())")
+				.HasColumnType("datetime")
+				.HasColumnName("dtFechaModificacion");
+			entity.Property(e => e.iIdEtapaDestino).HasColumnName("iIdEtapaDestino");
+			entity.Property(e => e.iIdEtapaOrigen).HasColumnName("iIdEtapaOrigen");
+
+			entity.HasOne(d => d.EtapaDestino).WithMany(p => p.EtapasMovimientosDestino)
+				.HasForeignKey(d => d.iIdEtapaDestino)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_EtapasMovimientos_iIdEtapaDestino");
+
+			entity.HasOne(d => d.EtapaOrigen).WithMany(p => p.EtapasMovimientosOrigen)
+				.HasForeignKey(d => d.iIdEtapaOrigen)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_EtapasMovimientos_iIdEtapaOrigen");
+		});
+
+		modelBuilder.Entity<EntEtapaTramite>(entity =>
         {
             entity.HasKey(e => e.iIdEtapaTramite).HasName("PK__EtapasTr__925533C9B5793230");
 
@@ -2126,8 +2286,15 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.iIdModulo).HasColumnName("iIdModulo");
             entity.Property(e => e.iIdSolicitud).HasColumnName("iIdSolicitud");
             entity.Property(e => e.iIdSubModulo).HasColumnName("iIdSubModulo");
+			entity.Property(e => e.iIdUsuario).HasColumnName("iIdUsuario");
 
-            entity.HasOne(d => d.Bien).WithMany(p => p.Historiales)
+
+			entity.HasOne(d => d.Usuario).WithMany(p => p.Historial)
+				.HasForeignKey(d => d.iIdUsuario)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_Historiales_iIdUsuario");
+
+			entity.HasOne(d => d.Bien).WithMany(p => p.Historiales)
                 .HasForeignKey(d => d.iIdBien)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Depreciaciones_iIdBien");
@@ -2225,7 +2392,9 @@ public partial class AppDbContext : IdentityDbContext<
             entity.ToTable("MetodosAdquisicion", "Almacen");
 
             entity.Property(e => e.iIdMetodoAdquisicion).HasColumnName("iIdMetodoAdquisicion");
-            entity.Property(e => e.dtFechaCreacion)
+			entity.Property(e => e.bActivo).HasColumnName("bActivo");
+
+			entity.Property(e => e.dtFechaCreacion)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("dtFechaCreacion");
@@ -2347,7 +2516,9 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasColumnType("date")
                 .HasColumnName("dtFechaResepcion");
             entity.Property(e => e.iIdAlmacen).HasColumnName("iIdAlmacen");
-            entity.Property(e => e.iIdConceptoMovimiento).HasColumnName("iIdConceptoMovimiento");
+			entity.Property(e => e.iIdPeriodo).HasColumnName("iIdPeriodo");
+			entity.Property(e => e.sArticulos).HasColumnName("sArticulos");
+			entity.Property(e => e.iIdConceptoMovimiento).HasColumnName("iIdConceptoMovimiento");
             entity.Property(e => e.iIdFamilia).HasColumnName("iIdFamilia");
             entity.Property(e => e.iIdFuenteFinanciamiento).HasColumnName("iIdFuenteFinanciamiento");
             entity.Property(e => e.iIdMetodoAdquisicion).HasColumnName("iIdMetodoAdquisicion");
@@ -2357,14 +2528,20 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.sNumeroFactura)
                 .HasMaxLength(255)
                 .HasColumnName("sNumeroFactura");
-            entity.Property(e => e.sObservaciones).HasColumnName("sObservaciones");
+			entity.Property(e => e.iIdEtapa).HasColumnName("iIdEtapa");
+			entity.Property(e => e.sObservaciones).HasColumnName("sObservaciones");
 
             entity.HasOne(d => d.Almacen).WithMany(p => p.Movimientos)
                 .HasForeignKey(d => d.iIdAlmacen)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Movimientos_iIdAlmacen");
 
-            entity.HasOne(d => d.ConceptoMovimiento).WithMany(p => p.Movimientos)
+			entity.HasOne(d => d.Periodo).WithMany(p => p.Movimientos)
+			   .HasForeignKey(d => d.iIdPeriodo)
+			   .OnDelete(DeleteBehavior.ClientSetNull)
+			   .HasConstraintName("FK_Movimientos_iIdPeriodo");
+
+			entity.HasOne(d => d.ConceptoMovimiento).WithMany(p => p.Movimientos)
                 .HasForeignKey(d => d.iIdConceptoMovimiento)
                 .HasConstraintName("FK_Movimientos_iIdConceptoMovimiento");
 
@@ -2393,7 +2570,11 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasForeignKey(d => d.iIdTipoMovimiento)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Movimientos_iIdTipoMovimiento");
-        });
+
+			entity.HasOne(d => d.Etapa).WithMany(p => p.EtapasMovimientos)
+			 .HasForeignKey(d => d.iIdEtapa)
+			 .HasConstraintName("FK_Movimientos_iIdEtapa");
+		});
 
         modelBuilder.Entity<EntMovimientoBien>(entity =>
         {
@@ -2410,15 +2591,13 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("dtFechaModificacion");
-            entity.Property(e => e.iIdBien).HasColumnName("iIdBien");
-            entity.Property(e => e.iIdBms).HasColumnName("iIdBMS");
+            entity.Property(e => e.iCantidad).HasColumnName("iCantidad");
+			entity.Property(e => e.dTotal).HasColumnName("dTotal");
+
+			entity.Property(e => e.iIdBms).HasColumnName("iIdBMS");
             entity.Property(e => e.iIdMovimiento).HasColumnName("iIdMovimiento");
 
-            entity.HasOne(d => d.Bien).WithMany(p => p.MovimientosBienes)
-                .HasForeignKey(d => d.iIdBien)
-                .HasConstraintName("FK_MovimientosBienes_iIdBien");
-
-            entity.HasOne(d => d.Bms).WithMany(p => p.MovimientosBienes)
+			entity.HasOne(d => d.Bms).WithMany(p => p.MovimientosBienes)
                 .HasForeignKey(d => d.iIdBms)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_MovimientosBienes_iIdBMS");
@@ -2824,6 +3003,8 @@ public partial class AppDbContext : IdentityDbContext<
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("dtFechaModificacion");
+            entity.Property(e => e.iIdTipoBien)
+                .HasColumnName("iIdTipoBien");
             entity.Property(e => e.iIdAfectacion).HasColumnName("iIdAfectacion");
             entity.Property(e => e.iIdEmpleado).HasColumnName("iIdEmpleado");
             entity.Property(e => e.iIdEtapa).HasColumnName("iIdEtapa");
@@ -2834,7 +3015,12 @@ public partial class AppDbContext : IdentityDbContext<
             entity.Property(e => e.sDocumentoReferencia).HasColumnName("sDocumentoReferencia");
             entity.Property(e => e.sObservaciones).HasColumnName("sObservaciones");
 
-            entity.HasOne(d => d.Afectacion).WithMany(p => p.Solicitudes)
+			entity.HasOne(d => d.TipoBien).WithMany(p => p.Solicitudes)
+				.HasForeignKey(d => d.iIdTipoBien)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("FK_Solicitudes_iIdTipoBien");
+
+			entity.HasOne(d => d.Afectacion).WithMany(p => p.Solicitudes)
                 .HasForeignKey(d => d.iIdAfectacion)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Solicitudes_iIdAfectacionSolicitud");
@@ -3010,6 +3196,8 @@ public partial class AppDbContext : IdentityDbContext<
                 .IsRequired()
                 .HasMaxLength(255)
                 .HasColumnName("sNombre");
+            entity.Property(e => e.iIdTipoBien)
+                .HasColumnName("iIdTipoBien");
         });
 
         modelBuilder.Entity<EntTipoBienInmueble>(entity =>

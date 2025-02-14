@@ -15,7 +15,7 @@ public partial class EntMunicipio : EntRegistroGenerico
 
     public string sNombre { get; set; }
 
-    public virtual ICollection<EntrBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntrBienPatrimonio>();
+    public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
 
     public virtual ICollection<EntCentroTrabajo> CentrosTrabajos { get; set; } = new List<EntCentroTrabajo>();
 

@@ -717,6 +717,7 @@ CREATE TABLE General.BMS
     sUnidadMedida       NVARCHAR(255),
     dPrecioUnitario     DOUBLE PRECISION                  NOT NULL,
     nCodigoArmonizado   NUMERIC(10),
+    sPartidas           NVARCHAR(MAX),
     bActivo             BIT                               NOT NULL,
     dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
     dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
@@ -759,6 +760,40 @@ ALTER TABLE Patrimonio.EtapasTramites
 
 ALTER TABLE Patrimonio.EtapasTramites
     ADD CONSTRAINT FK_EtapasTramites_iIdEtapaDestino
+        FOREIGN KEY (iIdEtapaDestino) REFERENCES Patrimonio.Etapas (iIdEtapa);
+
+CREATE TABLE Patrimonio.EtapasSolicitudes
+(
+    iIdEtapaSolicitud   BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
+    iIdEtapaOrigen      BIGINT                            NOT NULL,
+    iIdEtapaDestino     BIGINT                            NOT NULL,
+    dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
+    dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
+);
+
+ALTER TABLE Patrimonio.EtapasSolicitudes
+    ADD CONSTRAINT FK_EtapasSolicitudes_iIdEtapaOrigen
+        FOREIGN KEY (iIdEtapaOrigen) REFERENCES Patrimonio.Etapas (iIdEtapa);
+
+ALTER TABLE Patrimonio.EtapasSolicitudes
+    ADD CONSTRAINT FK_EtapasSolicitudes_iIdEtapaDestino
+        FOREIGN KEY (iIdEtapaDestino) REFERENCES Patrimonio.Etapas (iIdEtapa);
+
+CREATE TABLE Almacen.EtapasMovimientos
+(
+    iIdEtapaMovimiento  BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
+    iIdEtapaOrigen      BIGINT                            NOT NULL,
+    iIdEtapaDestino     BIGINT                            NOT NULL,
+    dtFechaCreacion     DATETIME                          NOT NULL DEFAULT GETDATE(),
+    dtFechaModificacion DATETIME                          NOT NULL DEFAULT GETDATE()
+);
+
+ALTER TABLE Almacen.EtapasMovimientos
+    ADD CONSTRAINT FK_EtapasMovimientos_iIdEtapaOrigen
+        FOREIGN KEY (iIdEtapaOrigen) REFERENCES Patrimonio.Etapas (iIdEtapa);
+
+ALTER TABLE Almacen.EtapasMovimientos
+    ADD CONSTRAINT FK_EtapasMovimientos_iIdEtapaDestino
         FOREIGN KEY (iIdEtapaDestino) REFERENCES Patrimonio.Etapas (iIdEtapa);
 
 CREATE TABLE Patrimonio.Licitaciones
@@ -944,6 +979,7 @@ CREATE TABLE Patrimonio.Bienes
 (
     iIdBien                 BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     iIdPeriodo              BIGINT                            NOT NULL,
+    iIdSolicitud            BIGINT                            NOT NULL,
     iIdTipoBien             BIGINT                            NOT NULL,
     sFolioBien              NVARCHAR(MAX),
     iIdFamilia              BIGINT                            NOT NULL,
@@ -976,11 +1012,32 @@ CREATE TABLE Patrimonio.Bienes
     sObservacionBien        NVARCHAR(MAX),
     sObservacionResponsable NVARCHAR(MAX),
     idDatoInmueble          BIGINT,
+    iIdDatoGeneral          BIGINT,
+    iIdFactura              BIGINT,
+    iIdLicitacion           BIGINT,
     dtFechaBaja             DATE,
     dtFechaAlta             DATE,
     sMotivoBaja             NVARCHAR(MAX),
     bDeprecia               BIT                               NOT NULL DEFAULT 1,
+    bActivo                 BIT                               NOT NULL DEFAULT 1,
+    bEnProceso              BIT                               NOT NULL DEFAULT 0,
 );
+
+alter table Patrimonio.Bienes
+    add constraint FK_Bienes_iIdSolicitud
+        foreign key (iIdSolicitud) references Patrimonio.Solicitudes (iIdSolicitud);
+
+alter table Patrimonio.Bienes
+    add constraint FK_Bienes_iIdDatoGeneral
+        foreign key (iIdDatoGeneral) references Patrimonio.DatosGenerales (iIdDatoGeneral);
+
+alter table Patrimonio.Bienes
+    add constraint FK_Bienes_iIdFactura
+        foreign key (iIdFactura) references Patrimonio.Facturas (iIdFactura);
+
+alter table Patrimonio.Bienes
+    add constraint FK_Bienes_iIdLicitacion
+        foreign key (iIdLicitacion) references Patrimonio.Licitaciones (iIdLicitacion);
 
 ALTER TABLE Patrimonio.Bienes
     ADD CONSTRAINT FK_Bienes_iIdPeriodo
@@ -1038,6 +1095,7 @@ CREATE TABLE Patrimonio.Solicitudes
     iIdMotivoTramite        BIGINT                            NOT NULL,
     iIdAfectacion           BIGINT                            NOT NULL,
     dtFechaAfectacion       DATE                              NOT NULL,
+    iIdTipoBien             BIGINT                            NOT NULL,
     sDocumentoReferencia    NVARCHAR(MAX),
     sObservaciones          NVARCHAR(MAX),
     dtFechaCreacion         DATETIME                          NOT NULL DEFAULT GETDATE(),
@@ -1072,11 +1130,14 @@ ALTER TABLE Patrimonio.Solicitudes
     ADD CONSTRAINT FK_Solicitudes_iIdAfectacionSolicitud
         FOREIGN KEY (iIdAfectacion) REFERENCES Patrimonio.Afectaciones (iIdAfectacion);
 
+ALTER TABLE Patrimonio.Solicitudes
+    ADD CONSTRAINT FK_Solicitudes_iIdTipoBien FOREIGN KEY (iIdTipoBien)
+        REFERENCES Catalogo.TiposBienes (iIdTipoBien);
+
 CREATE TABLE Patrimonio.DetallesAltas
 (
     iIdDetalleAlta          BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     iIdSolicitud            BIGINT                            NOT NULL,
-    iIdEtapa                BIGINT                            NOT NULL,
     iNumeroBienes           INT                               NOT NULL,
     iIdTipoBien             BIGINT                            NOT NULL,
     sFolioBien              NVARCHAR(MAX),
@@ -1112,15 +1173,12 @@ CREATE TABLE Patrimonio.DetallesAltas
     idDatoInmueble          BIGINT,
     iIdLicitacion           BIGINT,
     iIdFactura              BIGINT,
+    iIdDatoGeneral          BIGINT,
 );
 
 ALTER TABLE Patrimonio.DetallesAltas
     ADD CONSTRAINT FK_DetallesAltas_iIdSolicitud
         FOREIGN KEY (iIdSolicitud) REFERENCES Patrimonio.Solicitudes (iIdSolicitud);
-
-ALTER TABLE Patrimonio.DetallesAltas
-    ADD CONSTRAINT FK_DetallesAltas_iIdEtapa
-        FOREIGN KEY (iIdEtapa) REFERENCES Patrimonio.Etapas (iIdEtapa);
 
 ALTER TABLE Patrimonio.DetallesAltas
     ADD CONSTRAINT FK_DetallesAltas_iIdTipoBien
@@ -1170,15 +1228,20 @@ ALTER TABLE Patrimonio.DetallesAltas
     ADD CONSTRAINT FK_DetallesAltas_iIdFactura
         FOREIGN KEY (iIdFactura) REFERENCES Patrimonio.Facturas (iIdFactura);
 
+ALTER TABLE Patrimonio.DetallesAltas
+    ADD CONSTRAINT FK_DetallesAltas_iIdDatoGeneral
+        FOREIGN KEY (iIdDatoGeneral) REFERENCES Patrimonio.DatosGenerales (iIdDatoGeneral);
+
 CREATE TABLE Patrimonio.Bajas
 (
     iIdBaja                 BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     iIdUnidadAdministrativa BIGINT                            NOT NULL,
-    iIdEmpleado             BIGINT                            NOT NULL,
+    iIdEmpleado             BIGINT,
     iIdTipoBien             BIGINT                            NOT NULL,
     sFolioBien              NVARCHAR(MAX)                     NOT NULL,
     sObservaciones          NVARCHAR(MAX),
-    sFolioDictamen          NVARCHAR(25)                      NOT NULL,
+    sFolioDocumento         NVARCHAR(255),
+    sFolioDictamen          NVARCHAR(25),
     dtFehaDocumento         DATE                              NOT NULL,
     sListaDocunetario       NVARCHAR(MAX),
     sNombreSolicitante      NVARCHAR(255)                     NOT NULL,
@@ -1252,8 +1315,8 @@ CREATE TABLE Patrimonio.DetallesBajas
 (
     iIdDetalleBaja  BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     iIdSolicitud    BIGINT                            NOT NULL,
-    iIdBaja         BIGINT                            NOT NULL,
-    iIdBajaInmueble BIGINT                            NOT NULL,
+    iIdBaja         BIGINT,
+    iIdBajaInmueble BIGINT,
 );
 
 ALTER TABLE Patrimonio.DetallesBajas
@@ -1305,7 +1368,6 @@ CREATE TABLE Patrimonio.DetallesModificaciones
     iIdDetalleModificacion  BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     iIdBien                 BIGINT                            NOT NULL,
     iIdSolicitud            BIGINT                            NOT NULL,
-    iIdEtapa                BIGINT                            NOT NULL,
     iNumeroBienes           INT                               NOT NULL,
     iIdTipoBien             BIGINT                            NOT NULL,
     sFolioBien              NVARCHAR(MAX),
@@ -1316,6 +1378,7 @@ CREATE TABLE Patrimonio.DetallesModificaciones
     sPartidaEspecifica      NVARCHAR(50),
     sDescripcion            NVARCHAR(MAX)                     NOT NULL,
     iIdUnidadAdministrativa BIGINT                            NOT NULL,
+    iIdCentroCosto          BIGINT                            NOT NULL,
     sRequisicion            NVARCHAR(MAX),
     sOrdenCompra            NVARCHAR(MAX),
     sCuentaPorPagar         NVARCHAR(MAX),
@@ -1341,6 +1404,7 @@ CREATE TABLE Patrimonio.DetallesModificaciones
     iIdDatoInmueble         BIGINT,
     iIdLicitacion           BIGINT,
     iIdFactura              BIGINT,
+    iIdDatoGeneral          BIGINT,
 );
 
 ALTER TABLE Patrimonio.DetallesModificaciones
@@ -1350,10 +1414,6 @@ ALTER TABLE Patrimonio.DetallesModificaciones
 ALTER TABLE Patrimonio.DetallesModificaciones
     ADD CONSTRAINT FK_DetallesModificaciones_iIdBien
         FOREIGN KEY (iIdBien) REFERENCES Patrimonio.Bienes (iIdBien);
-
-ALTER TABLE Patrimonio.DetallesModificaciones
-    ADD CONSTRAINT FK_DetallesModificaciones_iIdEtapa
-        FOREIGN KEY (iIdEtapa) REFERENCES Patrimonio.Etapas (iIdEtapa);
 
 ALTER TABLE Patrimonio.DetallesModificaciones
     ADD CONSTRAINT FK_DetallesModificaciones_iIdTipoBien
@@ -1394,12 +1454,30 @@ ALTER TABLE Patrimonio.DetallesModificaciones
 ALTER TABLE Patrimonio.DetallesModificaciones
     ADD CONSTRAINT FK_DetallesModificaciones_iIdDatosInmueblesModificaciones
         FOREIGN KEY (iIdDatoInmueble) REFERENCES Patrimonio.DatosInmuebles (iIdDatoInmueble);
+alter table Patrimonio.DetallesModificaciones
+    add iIdCentroCosto BIGINT;
+
+ALTER TABLE Patrimonio.DetallesModificaciones
+    ADD CONSTRAINT FK_DetallesModificaciones_iIdLicitacion
+        FOREIGN KEY (iIdLicitacion) REFERENCES Patrimonio.Licitaciones (iIdLicitacion);
+
+ALTER TABLE Patrimonio.DetallesModificaciones
+    ADD CONSTRAINT FK_DetallesModificaciones_iIdFactura
+        FOREIGN KEY (iIdFactura) REFERENCES Patrimonio.Facturas (iIdFactura);
+
+ALTER TABLE Patrimonio.DetallesModificaciones
+    ADD CONSTRAINT FK_DetallesModificaciones_iIdDatoGeneral
+        FOREIGN KEY (iIdDatoGeneral) REFERENCES Patrimonio.DatosGenerales (iIdDatoGeneral);
+
+ALTER TABLE Patrimonio.DetallesModificaciones
+    ADD CONSTRAINT FK_DetallesModificaciones_iIdCentroCosto
+        FOREIGN KEY (iIdCentroCosto) REFERENCES General.UnidadesAdministrativas (iIdUnidadAdministrativa);
 
 CREATE TABLE Patrimonio.DetallesDesincorporaciones
 (
     iIdDetalleDesincorporacion   BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     iIdUnidadAdministrativa      BIGINT                            NOT NULL,
-    iIdEmpleado                  BIGINT                            NOT NULL,
+    iIdEmpleado                  BIGINT,
     iIdTipoBien                  BIGINT                            NOT NULL,
     sFolioBien                   NVARCHAR(MAX)                     NOT NULL,
     sObservaciones               NVARCHAR(MAX)                     NOT NULL,
@@ -1427,7 +1505,7 @@ CREATE TABLE Patrimonio.DetallesEnagenaciones
     dtFecha               DATE                              NOT NULL,
     sAvaluo               NVARCHAR(255)                     NOT NULL,
     dImporteAvaluo        DOUBLE PRECISION                  NOT NULL,
-    dImporte              DOUBLE PRECISION                  NOT NULL,
+    dImporte              DOUBLE PRECISION,
     sDescripcion          NVARCHAR(MAX)                     NOT NULL,
 );
 
@@ -1443,13 +1521,13 @@ CREATE TABLE Patrimonio.DetallesDestinoFinales
 (
     iIdDetalleDestinoFinal  BIGINT PRIMARY KEY IDENTITY (1,1) NOT NULL,
     iIdUnidadAdministrativa BIGINT                            NOT NULL,
-    iIdEmpleado             BIGINT                            NOT NULL,
+    iIdEmpleado             BIGINT,
     iIdTipoBien             BIGINT                            NOT NULL,
     sFolioBien              NVARCHAR(MAX)                     NOT NULL,
-    iIdAfectacion           BIGINT                            NOT NULL,
+    iIdAfectacion           BIGINT,
     iIdDetalleEnagenacion   BIGINT,
     iIdDetalleDestruccion   BIGINT,
-    sObservaciones          NVARCHAR(MAX)                     NOT NULL,
+    sObservaciones          NVARCHAR(MAX),
 );
 
 ALTER TABLE Patrimonio.DetallesDestinoFinales

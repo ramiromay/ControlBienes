@@ -1,5 +1,10 @@
-﻿using ControlBienes.Entities.Genericos;
+﻿using ControlBienes.Entities.Almacen.EtapaMovimiento;
+using ControlBienes.Entities.Almacen.Movimiento;
+using ControlBienes.Entities.Almacen.MovimientoBien;
+using ControlBienes.Entities.Genericos;
 using ControlBienes.Entities.Patrimonio.Alta;
+using ControlBienes.Entities.Patrimonio.DetalleSolicitud;
+using ControlBienes.Entities.Patrimonio.EtapaSolicitud;
 using ControlBienes.Entities.Patrimonio.EtapaTramite;
 using ControlBienes.Entities.Patrimonio.Modificacion;
 using ControlBienes.Entities.Patrimonio.Seguimiento;
@@ -17,11 +22,18 @@ public partial class EntEtapa : EntRegistroGenerico
 
     public bool bActivo { get; set; }
 
-    public virtual ICollection<EntDetalleAlta> DetallesAlta { get; set; } = new List<EntDetalleAlta>();
+	public virtual ICollection<EntMovimiento> EtapasMovimientos { get; set; } = new List<EntMovimiento>();
 
-    public virtual ICollection<EntDetalleModificacion> DetallesModificaciones { get; set; } = new List<EntDetalleModificacion>();
+	public virtual ICollection<EntEtapaSolicitud> EtapasSolicitudesDestino{ get; set; } = new List<EntEtapaSolicitud>();
 
-    public virtual ICollection<EntDetalleSolicitud> DetallesSolicitudes { get; set; } = new List<EntDetalleSolicitud>();
+	public virtual ICollection<EntEtapaSolicitud> EtapasSolicitudesOrigen { get; set; } = new List<EntEtapaSolicitud>();
+
+	public virtual ICollection<EntEtapaMovimiento> EtapasMovimientosDestino { get; set; } = new List<EntEtapaMovimiento>();
+
+	public virtual ICollection<EntEtapaMovimiento> EtapasMovimientosOrigen { get; set; } = new List<EntEtapaMovimiento>();
+
+
+	public virtual ICollection<EntDetalleSolicitud> DetallesSolicitudes { get; set; } = new List<EntDetalleSolicitud>();
 
     public virtual ICollection<EntEtapaTramite> EtapasTramitesOrigen { get; set; } = new List<EntEtapaTramite>();
 

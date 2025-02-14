@@ -1,6 +1,6 @@
 ﻿using ControlBienes.Entities.Genericos;
+using ControlBienes.Entities.Patrimonio.DetalleSolicitud;
 using ControlBienes.Entities.Patrimonio.Etapa;
-using ControlBienes.Entities.Patrimonio.Solicitud;
 using ControlBienes.Entities.Seguridad.Usuario;
 using ControlBienes.Entities.Sistema.Modulo;
 using ControlBienes.Entities.Sistema.SubModulo;

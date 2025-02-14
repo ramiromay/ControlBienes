@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ControlBienes.Entities.Patrimonio.DetalleAlta
+{
+	public class EntDetalleAltaMuebleRequest
+	{
+		public long? IdSolicitud { get; set; } = 0;
+
+		public int? NumeroBienes { get; set; } = 0;
+
+		public long? IdFamilia { get; set; } = 0;
+
+		public long? IdSubfamilia { get; set; } = 0;
+
+		public long? IdBms { get; set; } = 0;
+
+		public string Descripcion { get; set; } = string.Empty;
+
+		public string NivelUnidadAdministrativa { get; set; } = string.Empty;
+		
+		public string Requisicion { get; set; } = string.Empty;
+		
+		public string OrdenCompra { get; set; } = string.Empty;
+
+		public long? IdTipoAdquisicion { get; set; } = 0;
+
+		public string NoSeries { get; set; } = string.Empty;
+		
+		public string FolioAnterior { get; set; } = string.Empty;
+
+		public int? NoLicitacion { get; set; } = 0;
+
+		public DateTime? FechaLicitacion { get; set; } = null;
+
+		public string ObservacionLicitacion { get; set; } = string.Empty;
+
+		public long? IdEstadoFisico { get; set; } = 0;
+
+		public long? IdMarca { get; set; } = 0;
+
+		public long? IdColor { get; set; } = 0;
+
+		public string FolioFactura { get; set; } = string.Empty;
+
+		public DateTime? FechaFactura { get; set; } = null;
+
+		public decimal? PrecioUnitario { get; set; } = 0.0m;
+
+		public DateTime? FechaCompra { get; set; } = null;
+
+		public int? DiasGarantia { get; set; } = 0;
+
+		public int? VidaUtil { get; set; } = 0;
+
+		public DateTime? FechaInicioUso { get; set; } = null;
+
+		public decimal? PrecioDesechable { get; set; } = 0.0m;
+
+		public string ObservacionBien { get; set; } = string.Empty;
+
+		public long? IdUbicacion { get; set; } = 0;
+
+		public long? IdMunicipio { get; set; } = 0;
+
+		public string Caracteristicas { get; set; } = string.Empty;
+
+		public string Responsables { get; set; } = string.Empty;
+
+		public string ObservacionResponsable { get; set; } = string.Empty;
+
+	}
+}

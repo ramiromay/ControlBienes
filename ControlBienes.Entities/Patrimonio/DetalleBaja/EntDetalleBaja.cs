@@ -1,4 +1,5 @@
 ﻿using ControlBienes.Entities.Patrimonio.BajaInmueble;
+using ControlBienes.Entities.Patrimonio.DetalleSolicitud;
 using ControlBienes.Entities.Patrimonio.Solicitud;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,9 @@ public partial class EntDetalleBaja
 
     public long iIdSolicitud { get; set; }
 
-    public long iIdBaja { get; set; }
+    public long? iIdBaja { get; set; }
 
-    public long iIdBajaInmueble { get; set; }
+    public long? iIdBajaInmueble { get; set; }
 
     public virtual ICollection<EntDetalleSolicitud> DetallesSolicitudes { get; set; } = new List<EntDetalleSolicitud>();
 

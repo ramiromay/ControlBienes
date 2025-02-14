@@ -60,7 +60,7 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajo
         {
             var existePeriodo = await _repositorioPeriodo.DExisteRegistroAsync(e => e.iIdPeriodo ==  request.IdPeriodo);
             var existeMunicipio = await _repositorioMunicipio.DExisteRegistroAsync(e => e.iIdMunicipio == request.IdMunicipio);
-            var existeUnidadAdministrativa = await _repositorioUnidadAdministrativa.DExisteRegistroAsync(e => e.iIdUnidadAdministrativa == request.IdUnidadAdministrativa);
+            var existeUnidadAdministrativa = await _repositorioUnidadAdministrativa.DExisteRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
 
             string errores = "";
             if (!existePeriodo) errores += "El Periodo no se encuentra registrado,";
@@ -83,12 +83,14 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajo
                 await BValidadRequestBD(request);
                 var entidad = await _repositorio.DObtenerRegistroAsync(id)
                     ?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
+
+                var unidadAdministrativa = await _repositorioUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
                 entidad.iIdPeriodo = request.IdPeriodo.Value;
                 entidad.sNombre = request.Nombre;
                 entidad.sClave = request.Clave;
                 entidad.sDireccion = request.Direccion;
                 entidad.iIdMunicipio = request.IdMunicipio.Value;
-                entidad.iIdUnidadAdministrativa = request.IdUnidadAdministrativa.Value;
+                entidad.iIdUnidadAdministrativa = unidadAdministrativa.iIdUnidadAdministrativa;
                 resultado.Result = await _repositorio.DActualizarAsync(entidad);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
@@ -118,7 +120,9 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajo
             {
                 var entidad = await _repositorio.DObtenerRegistroAsync(id)
                     ?? throw new BusRecursoNoEncontradoException(EntMensajeConstant.NoEncontrado);
-                resultado.Result = await _repositorio.DActualizarEstatusAsync(entidad);
+				
+
+				resultado.Result = await _repositorio.DActualizarEstatusAsync(entidad);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
                 resultado.Code = _code;
@@ -148,7 +152,10 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajo
                 BValidarRequest(request);
                 await BValidadRequestBD(request);
                 var entidad = _mapper.Map<EntCentroTrabajo>(request);
-                resultado.Result = await _repositorio.DCrearAsync(entidad);
+                var unidadAdministrativa = await _repositorioUnidadAdministrativa.DObtenerRegistroAsync(e => e.sNivelCompleto == request.NivelUnidadAdministrativa);
+                entidad.iIdUnidadAdministrativa = unidadAdministrativa.iIdUnidadAdministrativa;
+
+				resultado.Result = await _repositorio.DCrearAsync(entidad);
                 resultado.StatusCode = HttpStatusCode.OK;
                 resultado.Message = EntMensajeConstant.OK;
                 resultado.Code = _code;

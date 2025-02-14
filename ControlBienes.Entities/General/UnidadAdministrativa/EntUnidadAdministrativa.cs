@@ -30,7 +30,7 @@ public partial class EntUnidadAdministrativa : EntRegistroGenerico
 
     public virtual ICollection<EntBaja> Bajas { get; set; } = new List<EntBaja>();
 
-    public virtual ICollection<EntrBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntrBienPatrimonio>();
+    public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
 
     public virtual ICollection<EntCentroTrabajo> CentrosTrabajos { get; set; } = new List<EntCentroTrabajo>();
 
@@ -42,7 +42,9 @@ public partial class EntUnidadAdministrativa : EntRegistroGenerico
 
     public virtual ICollection<EntDetalleModificacion> DetallesModificaciones { get; set; } = new List<EntDetalleModificacion>();
 
-    public virtual ICollection<EntDetalleMovimiento> DetallesMovimientoIIdNuevaUnidadAdministrativaNavigations { get; set; } = new List<EntDetalleMovimiento>();
+	public virtual ICollection<EntDetalleModificacion> DetallesModificacionesCentroCosto { get; set; } = new List<EntDetalleModificacion>();
+
+	public virtual ICollection<EntDetalleMovimiento> DetallesMovimientoIIdNuevaUnidadAdministrativaNavigations { get; set; } = new List<EntDetalleMovimiento>();
 
     public virtual ICollection<EntDetalleMovimiento> DetallesMovimientoIIdUnidadAdministrativaNavigations { get; set; } = new List<EntDetalleMovimiento>();
 

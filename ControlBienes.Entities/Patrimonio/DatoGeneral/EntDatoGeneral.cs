@@ -6,6 +6,9 @@ using ControlBienes.Entities.Catalogos.LineaVehicular;
 using ControlBienes.Entities.Catalogos.Marca;
 using ControlBienes.Entities.Catalogos.TipoVehicular;
 using ControlBienes.Entities.Catalogos.VersionVehicular;
+using ControlBienes.Entities.Patrimonio.Alta;
+using ControlBienes.Entities.Patrimonio.Bien;
+using ControlBienes.Entities.Patrimonio.Modificacion;
 using System;
 using System.Collections.Generic;
 
@@ -46,4 +49,9 @@ public partial class EntDatoGeneral
     public virtual EntTipoVehicular TipoVehicular { get; set; }
 
     public virtual EntVersionVehicular VersionVehicular { get; set; }
+
+	public virtual ICollection<EntDetalleAlta> DetallesAlta { get; set; } = new List<EntDetalleAlta>();
+	public virtual ICollection<EntDetalleModificacion> DetallesModificacion { get; set; } = new List<EntDetalleModificacion>();
+
+	public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
 }

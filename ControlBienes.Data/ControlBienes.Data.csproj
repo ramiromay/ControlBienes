@@ -20,8 +20,4 @@
     <ProjectReference Include="..\ControlBienes.Utils\ControlBienes.Utils.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repository\Almacen\" />
-  </ItemGroup>
-
 </Project>

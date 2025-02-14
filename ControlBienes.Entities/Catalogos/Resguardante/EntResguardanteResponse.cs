@@ -13,7 +13,6 @@ namespace ControlBienes.Entities.Catalogos.Resguardante
         public long? IdPeriodo { get; set; } = null;
         public long? IdPersona { get; set; } = null;
         public string? Persona { get; set; } = null;
-        public long? IdUnidadAdministrativa { get; set; } = null;
         public string? NivelUnidadAdministrativa { get; set; } = null;
         public string? UnidadAdministrativa { get; set; } = null;
         public string? Observaciones { get; set; } = null;

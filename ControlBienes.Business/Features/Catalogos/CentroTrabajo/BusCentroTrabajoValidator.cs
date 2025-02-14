@@ -31,10 +31,9 @@ namespace ControlBienes.Business.Features.Catalogos.CentroTrabajo
              .NotEmpty().WithMessage("Se requiere el Municipio")
              .Must(e => e > 0).WithMessage("El Municipio es invalido");
 
-            RuleFor(request => request.IdUnidadAdministrativa)
+            RuleFor(request => request.NivelUnidadAdministrativa)
              .Cascade(CascadeMode.Stop)
-             .NotEmpty().WithMessage("Se requiere la Unidad Administrativa")
-             .Must(e => e > 0).WithMessage("La Unidad Administrativa es invalida");
+             .NotEmpty().WithMessage("Se requiere la Unidad Administrativa");
         }
     }
 }

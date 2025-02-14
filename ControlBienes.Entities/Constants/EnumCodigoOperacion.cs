@@ -2,7 +2,11 @@
 {
     public enum EnumCodigoOperacion : long
     {
-        CodeOkColor = 11427392323982,
+		CodeErrorFiltroRequest = -1000000000000,
+		CodeErrorFiltroAutentificacion = -2000000000000,
+
+
+		CodeOkColor = 11427392323982,
         CodeErrorColor = -11427392323982,
 
         CodeOkLineaVehicular = 21427392323982,
@@ -133,6 +137,27 @@
 
 		CodeOkPermiso = 45147392323982,
 		CodeErrorPermiso = -45147392323982,
+
+		CodeOkEmail = 46147392323982,
+		CodeErrorEmail = -46147392323982,
+
+		CodeOkSolicitudMueble = 47147392323982,
+		CodeErrorSolicitudMueble = -47147392323982,
+
+        CodeOkTramite = 48147392323982,
+		CodeErrorTramite = -48147392323982,
+
+		CodeOkSolicitud = 49147392323982,
+		CodeErrorSolicitud = -49147392323982,
+
+		CodeOkTramiteMueble = 50147392323982,
+		CodeErrorTramiteMueble = -50147392323982,
+
+		CodeOkBms = 51147392323982,
+		CodeErrorBms = -51147392323982,
+
+		CodeOkInventario = 52147392323982,
+		CodeErrorInventario = -52147392323982,
 
 	}
 }

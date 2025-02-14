@@ -15,7 +15,7 @@ public partial class EntDetalleEnagenacion
 
     public double dImporteAvaluo { get; set; }
 
-    public double dImporte { get; set; }
+    public double? dImporte { get; set; }
 
     public string sDescripcion { get; set; }
 

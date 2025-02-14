@@ -7,6 +7,7 @@ using ControlBienes.Entities.Patrimonio.Desincorporacion;
 using ControlBienes.Entities.Patrimonio.DestinoFinal;
 using ControlBienes.Entities.Patrimonio.Modificacion;
 using ControlBienes.Entities.Patrimonio.Movimiento;
+using ControlBienes.Entities.Patrimonio.Solicitud;
 using System;
 using System.Collections.Generic;
 
@@ -20,7 +21,7 @@ public partial class EntTipoBien : EntCatalogoGenerico
 
     public virtual ICollection<EntBaja> Bajas { get; set; } = new List<EntBaja>();
 
-    public virtual ICollection<EntrBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntrBienPatrimonio>();
+    public virtual ICollection<EntBienPatrimonio> BienesPatrimonio { get; set; } = new List<EntBienPatrimonio>();
 
     public virtual ICollection<EntDetalleAlta> DetallesAlta { get; set; } = new List<EntDetalleAlta>();
 
@@ -33,4 +34,6 @@ public partial class EntTipoBien : EntCatalogoGenerico
     public virtual ICollection<EntDetalleMovimiento> DetallesMovimientos { get; set; } = new List<EntDetalleMovimiento>();
 
     public virtual ICollection<EntFamilia> Familia { get; set; } = new List<EntFamilia>();
+
+    public virtual ICollection<EntSolicitud> Solicitudes { get; set; } = new List<EntSolicitud>();
 }

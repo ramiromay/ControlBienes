@@ -20,7 +20,6 @@ namespace ControlBienes.Business.Features.Catalogos.Resguardante
                 .ForMember(dest => dest.Persona, opt => opt.MapFrom(src => $"{src.Persona.sNombres} {src.Persona.sPrimerNombre} {src.Persona.sSegundoNombre}" ))
                 .ForMember(dest => dest.IdTipoResponsable, opt => opt.MapFrom(src => src.iIdTipoResponsable))
                 .ForMember(dest => dest.TipoResponsable, opt => opt.MapFrom(src => src.TipoResponsable.sNombre))
-                .ForMember(dest => dest.IdUnidadAdministrativa, opt => opt.MapFrom(src => src.iIdUnidadAdministrativa))
                 .ForMember(dest => dest.NivelUnidadAdministrativa, opt => opt.MapFrom(src => src.UnidadAdministrativa.sNivelCompleto))
                 .ForMember(dest => dest.UnidadAdministrativa, opt => opt.MapFrom(src => src.UnidadAdministrativa.sNombre))
                 .ForMember(dest => dest.NoConvenio, opt => opt.MapFrom(src => src.iNoConvenio))
@@ -34,7 +33,6 @@ namespace ControlBienes.Business.Features.Catalogos.Resguardante
                .ForMember(dest => dest.iIdPeriodo, opt => opt.MapFrom(src => src.IdPeriodo))
                .ForMember(dest => dest.iIdPersona, opt => opt.MapFrom(src => src.IdPersona))
                .ForMember(dest => dest.iIdTipoResponsable, opt => opt.MapFrom(src => src.IdTipoResponsable))
-               .ForMember(dest => dest.iIdUnidadAdministrativa, opt => opt.MapFrom(src => src.IdUnidadAdministrativa))
                .ForMember(dest => dest.iNoConvenio, opt => opt.MapFrom(src => src.NoConvenio))
                .ForMember(dest => dest.sObservaciones, opt => opt.MapFrom(src => src.Observaciones))
                .ForMember(dest => dest.bResponsable, opt => opt.MapFrom(src => src.Responsable));
